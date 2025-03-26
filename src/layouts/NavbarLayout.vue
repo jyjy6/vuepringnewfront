@@ -12,6 +12,7 @@
         max-width="300"
         height="100"
         contain
+        @click="$router.push('/')"
       />
     </div>
 
@@ -100,23 +101,34 @@
   </v-navigation-drawer>
 
   <!-- Divisions Modal -->
-  <v-dialog v-model="divisionsModal" max-width="600">
+  <v-dialog v-model="divisionsModal" max-width="500">
     <v-card class="divisions-modal">
-      <v-card-title class="text-h6 font-weight-bold">
+      <v-card-title class="text-h6 font-weight-bold text-center">
         Boxing Divisions
       </v-card-title>
       <v-card-text>
         <!-- Divisions content -->
-        <v-row>
+        <v-row style="gap: 1px">
           <v-col
-            cols="6"
-            md="4"
+            cols="12"
+            style="padding: 5px"
             v-for="division in boxingDivisions"
             :key="division"
           >
-            <v-chip class="ma-2" label outlined color="primary">
-              {{ division }}
-            </v-chip>
+            <router-link
+              :to="`/${formatDivision(division)}`"
+              class="text-decoration-none"
+              @click="divisionsModal = false"
+            >
+              <v-chip
+                class="text-center division-chip d-flex justify-center align-center"
+                label
+                outlined
+                color="primary"
+              >
+                {{ division }}
+              </v-chip>
+            </router-link>
           </v-col>
         </v-row>
       </v-card-text>
@@ -134,30 +146,33 @@ const isScrolled = ref(false);
 const divisionsModal = ref(false);
 
 const boxingDivisions = [
-  "Heavyweight",
-  "Cruiserweight",
-  "Light Heavyweight",
-  "Super Middleweight",
-  "Middleweight",
-  "Super Welterweight",
-  "Welterweight",
-  "Super Lightweight",
-  "Lightweight",
-  "Super Featherweight",
-  "Featherweight",
-  "Super Bantamweight",
-  "Bantamweight",
-  "Super Flyweight",
-  "Flyweight",
-  "Light Flyweight",
+  "Heavy",
+  "Cruiser",
+  "Light Heavy",
+  "Super Middle",
+  "Middle",
+  "Super Welter",
+  "Welter",
+  "Super Light",
+  "Light",
+  "Super Feather",
+  "Feather",
+  "Super Bantam",
+  "Bantam",
+  "Super Fly",
+  "Fly",
+  "Light Fly",
 ];
+const formatDivision = (division) => {
+  return division.toLowerCase().replace(/\s+/g, "");
+};
 
 const menuItems = [
   { title: "NEWS", route: "/news" },
   { title: "P4P RANKINGS", route: "/p4p" },
   { title: "DIVISIONS", route: "modal" },
   { title: "SCHEDULE", route: "/schedule" },
-  { title: "RESULTS", route: "/result" },
+  { title: "ADMIN", route: "/admin" },
   { title: "SHOP", route: "/shop" },
   { title: "CONTACT", route: "/contact" },
 ];
@@ -232,5 +247,9 @@ onUnmounted(() => {
 .divisions-modal .v-chip:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.division-chip {
+  width: 100%;
 }
 </style>

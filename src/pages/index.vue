@@ -44,37 +44,53 @@
   </div>
   <hr class="divider" />
 
-  <!-- <div class="home-contents-container">
-    <div class="news-container">
-      <h2>Latest News</h2>
-      <div class="news-list">
-        <div class="news-card" v-for="news in limitedNewsData" :key="news.id">
-          <div class="news-content">
-            <h3 v-html="news.title"></h3>
-            <p class="news-preview" v-html="news.content"></p>
-            <router-link :to="`/news/`" class="read-more"
-              >Read more</router-link
+  <v-container class="home-contents-container">
+    <v-row>
+      <!-- Latest News -->
+      <v-col cols="12" md="6">
+        <v-card class="pa-4">
+          <v-card-title>Latest News</v-card-title>
+          <v-card-text class="news-list">
+            <v-card
+              class="news-card mb-4"
+              v-for="news in limitedNewsData"
+              :key="news.id"
             >
-          </div>
-        </div>
-      </div>
-    </div>
+              <v-card-text>
+                <h3 v-html="news.title"></h3>
+                <p class="news-preview" v-html="news.content"></p>
+                <router-link :to="`/news/`" class="read-more"
+                  >Read more</router-link
+                >
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-    <div v-if="homeVideoData" class="home-video">
-      <h2>{{ homeVideoData.title }}</h2>
-      <iframe
-        width="560"
-        height="315"
-        :src="`https://www.youtube.com/embed/${extractVideoId(
-          homeVideoData.link
-        )}`"
-        frameborder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-      ></iframe>
-      <p v-html="homeVideoData.content"></p>
-    </div>
-  </div> -->
+      <!-- Home Video -->
+      <v-col v-if="homeVideoData" cols="12" md="6">
+        <v-card class="home-video pa-4">
+          <v-card-title>{{ homeVideoData.title }}</v-card-title>
+          <v-card-text>
+            <v-responsive aspect-ratio="16/9">
+              <iframe
+                width="100%"
+                height="315"
+                :src="`https://www.youtube.com/embed/${extractVideoId(
+                  homeVideoData.link
+                )}`"
+                frameborder="0"
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </v-responsive>
+            <p v-html="homeVideoData.content"></p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <!-- tiptap으로 이미지 바인딩하기. -->
@@ -108,8 +124,8 @@ select의 value가 모두 채워지면
 import axios from "axios";
 import { computed, onMounted, ref } from "vue";
 import { useP4PStore } from "../store/p4pStore";
-console.log("환경변수");
-console.log("환경변수:" + import.meta.env.VITE_API_BASE_URL);
+import { useNewsDataStore } from "../store/newsDataStore";
+
 interface HomeVideoData {
   id: number;
   author: string;
@@ -123,10 +139,9 @@ const homeVideoData = ref<HomeVideoData | undefined>(undefined);
 const fetchVideos = async () => {
   try {
     const response = await axios.get(
-      `${process.env.VUE_APP_API_BASE_URL}/api/homevideo`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/homevideo`,
       {}
     );
-    console.log(response.data); // 응답 데이터 구조 확인
     homeVideoData.value = response.data; // 응답 데이터가 배열이라면 특정 요소로 접근해야 할 수도 있음
   } catch (error) {
     console.error("Error fetching videos:", error);
@@ -148,6 +163,7 @@ const p4pStore = useP4PStore();
 onMounted(() => {
   p4pStore.fetchP4PData();
   fetchVideos();
+  newsDataStore.fetchNewsData();
 });
 
 const p4pTop10 = computed(() => p4pStore.p4pData);
@@ -171,11 +187,13 @@ const getAnimationDelay = (index: number) => {
   };
 };
 
-// let newsDataCount = ref(3);
-// const newsData = computed(() => store.getters.newsData);
-// const limitedNewsData = computed(() =>
-//   newsData.value.slice(0, newsDataCount.value)
-// );
+const newsDataStore = useNewsDataStore();
+const newsData = computed(() => newsDataStore.newsData);
+const newsDataCount = ref(3);
+
+const limitedNewsData = computed(() =>
+  newsData.value.slice(0, newsDataCount.value)
+);
 </script>
 
 <style scoped>
@@ -329,16 +347,6 @@ const getAnimationDelay = (index: number) => {
 }
 .home-video p {
   font-size: 1.2rem;
-}
-
-.news-container {
-  margin: 20px;
-  padding: 20px;
-  width: 45%;
-  align-self: flex-start;
-  background-color: #ffffff; /* 배경색 설정 */
-  border-radius: 10px; /* 둥근 모서리 */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
 }
 
 .news-list {

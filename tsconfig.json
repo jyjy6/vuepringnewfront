@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "module": "esnext", // 이 부분을 esnext로 변경
-    "moduleResolution": "node"
-    // 다른 기존 설정들...
+    "module": "esnext", // ✅ 이 부분 확인 (es2020 이상)
+    "moduleResolution": "node",
+    "target": "esnext", // ✅ 추가로 target도 esnext로 설정
+    "allowSyntheticDefaultImports": true
   }
 }
