@@ -1,12 +1,13 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { News } from "../types/NewsTypes";
 
 export const useNewsDataStore = defineStore("newsData", () => {
   // 상태 정의
   const loading = ref(false);
   const count = ref(0);
-  const newsData = ref([]);
+  const newsData = ref<News[]>([]);
 
   const fetchNewsData = async () => {
     loading.value = true; // 로딩 상태 시작
