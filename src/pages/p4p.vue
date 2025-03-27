@@ -4,6 +4,7 @@
     class="ranking-list"
     v-for="(player, index) in p4pTop10"
     :key="player.id"
+    @click="openBoxerModal(index)"
   >
     <transition :css="false" @before-enter="beforeEnter" @enter="enter">
       <div class="ranking-card" :style="getAnimationDelay(index)">
@@ -20,7 +21,9 @@
               Ranking Date:
               {{ new Date(player.rankingDate).toLocaleDateString() }}
             </p>
+            <strong v-if="!player.previousRanking" class="rank-up">NEW</strong>
             <span
+              v-else
               class="changed-ranking"
               :class="{
                 'rank-up': player.previousRanking - player.p4pRanking > 0,
@@ -40,7 +43,10 @@
       </div>
     </transition>
   </div>
-
+  <BoxerDetailModalComponent
+    :selectedBoxer="selectedBoxer"
+    :boxers="boxerDataStore.boxers"
+  />
   <!-- ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ나중에 USER빼셈 ↓ -->
   <form @submit.prevent="addToP4PArray">
     <!-- 체급 선택 -->
@@ -131,11 +137,10 @@
     <div class="selected-boxers-list">
       <div
         v-for="(box, index) in p4pFormArray"
-        :key="box.boxerId"
+        :key="box.boxerId as number"
         class="selected-boxer-card"
       >
         <div class="boxer-info">
-          <!-- <p><strong>복서 아이디:</strong> {{ box.boxerId }}</p> -->
           <p style="font-size: 1.5rem">
             변경 P4P 랭킹:<strong> {{ box.p4pRanking }}위</strong>
           </p>
@@ -164,6 +169,9 @@ import axios from "axios";
 import { computed, onMounted, ref, watch } from "vue";
 import { useP4PStore } from "../store/p4pStore";
 import DivisionData from "../assets/DivisionData";
+import BoxerDetailModalComponent from "../components/BoxerDetailModalComponent.vue";
+import { useBoxerDataStore } from "../store/boxerDataStore";
+import { nextTick } from "process";
 
 const p4pStore = useP4PStore();
 const p4pTop10 = computed(() => p4pStore.p4pData);
@@ -183,11 +191,28 @@ const form = ref({
   p4pRanking: 9999,
 });
 
+const boxerDataStore = useBoxerDataStore();
+const selectedBoxer = ref(0);
+
+const openBoxerModal = async (index: number) => {
+  await boxerDataStore.getOneBoxer(p4pTop10.value[index].boxer.id);
+  boxerDataStore.modalOpen = true;
+};
+
 const boxers = ref<Boxer[] | null>([]);
-const selectedBoxerId = ref<null | number>(0); // 선택한 복서의 ID
+const selectedBoxerId = ref<number | null>(null); // 선택한 복서의 ID
 const selectedBoxerName = ref("");
 const weightClass = ref("");
-const p4pFormArray = ref<any>([]); // 전송할 P4P 정보를 저장할 배열
+
+interface P4PData {
+  boxerId: number | null;
+  p4pRanking: number;
+  p4pScore: number;
+  boxerName: string;
+}
+
+const p4pFormArray = ref<P4PData[]>([]); // P4PData 타입으로 정의
+
 // 복서 필터링 computed 속성
 
 const filteredBoxers = computed(() => {
@@ -227,24 +252,19 @@ const fetchboxers = async () => {
 };
 
 // 선택된 복서의 P4P 정보를 배열에 추가
-interface p4pData {
-  boxerName: string;
-  boxerId: number | null;
-  p4pScore: number;
-  p4pRanking: number;
-}
 const addToP4PArray = () => {
-  const p4pData: p4pData = {
-    boxerName: selectedBoxerName.value,
+  const p4pData: P4PData = {
     boxerId: selectedBoxerId.value,
-    p4pScore: form.value.p4pScore,
     p4pRanking: form.value.p4pRanking,
+    p4pScore: form.value.p4pScore,
+    boxerName: selectedBoxerName.value,
   };
 
   // 배열에 동일한 복서 ID가 이미 존재하는지 확인
   const existingIndex = p4pFormArray.value.findIndex(
     (item) => item.boxerId === selectedBoxerId.value
   );
+
   if (existingIndex !== -1) {
     // 존재하면 기존 데이터를 업데이트
     p4pFormArray.value[existingIndex] = p4pData;
@@ -337,26 +357,28 @@ onMounted(() => {
   p4pStore.fetchP4PData();
 });
 
-const beforeEnter = (el) => {
-  el.style.opacity = 0;
+const beforeEnter = (el: Element) => {
+  if (el instanceof HTMLElement) {
+    el.style.opacity = "0";
+  }
 };
 
-const enter = (el, done) => {
-  const delay = el.style.animationDelay || "0s";
+const enter = (el: Element, done: () => void) => {
+  const delay = (el as HTMLElement).style.animationDelay || "0s";
   setTimeout(() => {
-    el.style.opacity = 1;
+    (el as HTMLElement).style.opacity = "1";
     done();
   }, parseFloat(delay) * 1000); // Convert delay to ms
 };
 
-const getAnimationDelay = (index) => {
+const getAnimationDelay = (index: number) => {
   return {
-    animationDelay: `${index * 0.2}s`, // 0.1s delay between each card
+    animationDelay: `${index * 0.2}s`, // 0.2초 단위로 문자열로 변환
   };
 };
 
 // Example Data
-const removeBoxer = (index) => {
+const removeBoxer = (index: number) => {
   p4pFormArray.value.splice(index, 1);
 };
 </script>

@@ -24,15 +24,18 @@
     </div>
 
     <!-- 버튼들 (오른쪽에 배치) -->
-    <div class="d-flex align-center" style="flex: 1; justify-content: flex-end">
-      <v-btn @click="$router.push('/news')" color="error" variant="outlined"
-        >버튼1</v-btn
+    <div
+      class="d-flex align-center"
+      style="flex: 1; justify-content: flex-end; gap: 10px"
+    >
+      <v-btn @click="$router.push('/news')" color="secondary" variant="outlined"
+        >언어선택</v-btn
       >
-      <v-btn variant="outlined" @click="$router.push('/p4p')" color="secondary"
-        >버튼2</v-btn
+      <v-btn variant="outlined" @click="$router.push('/p4p')" color="error"
+        >SUBSCRIBE</v-btn
       >
       <v-btn variant="outlined" @click="$router.push('/schedule')" color="info"
-        >버튼3</v-btn
+        >로그인</v-btn
       >
     </div>
   </v-app-bar>

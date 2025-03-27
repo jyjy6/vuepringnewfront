@@ -106,10 +106,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref } from "vue";
 import { useNewsDataStore } from "../store/newsDataStore";
+import { News } from "../types/NewsTypes";
 
-const selectedNews = ref(null);
+const selectedNews = ref<News>();
 
-const openNewsModal = (index) => {
+const openNewsModal = (index: number) => {
   selectedNews.value = limitedNewsData.value[index];
   isModalOpen.value = true;
 };
@@ -126,7 +127,7 @@ onMounted(() => {
 
 let newsDataCount = ref(3);
 const newsData = computed(() => newsDataStore.newsData);
-const limitedNewsData = computed(() =>
+const limitedNewsData = computed((): News[] =>
   newsData.value.slice(0, newsDataCount.value)
 );
 
@@ -194,3 +195,4 @@ function findFirstImage() {
   background-color: rgb(var(--v-theme-primary), 0.1);
 }
 </style>
+../types/NewsTypes

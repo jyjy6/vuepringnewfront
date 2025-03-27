@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
-    "module": "esnext", // ✅ 이 부분 확인 (es2020 이상)
+    "module": "esnext",
     "moduleResolution": "node",
-    "target": "esnext", // ✅ 추가로 target도 esnext로 설정
-    "allowSyntheticDefaultImports": true
+    "target": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "strict": true, // ✅ 엄격한 타입 검사
+    "jsx": "preserve", // ✅ Vue와 호환되는 JSX 설정
+    "types": ["vite/client"], // ✅ Vite 프로젝트일 경우 필요
+    "skipLibCheck": true // ✅ 라이브러리 타입 검사 무시 (Vetur 오류 방지)
   }
 }

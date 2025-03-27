@@ -14,6 +14,7 @@ export const useP4PStore = defineStore("p4p", () => {
         `${import.meta.env.VITE_API_BASE_URL}/api/p4p`
       );
       p4pData.value = response.data;
+      console.log(p4pData.value);
     } catch (error) {
       console.error("Error fetching P4P data:", error);
     } finally {
