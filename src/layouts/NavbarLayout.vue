@@ -34,7 +34,7 @@
       <v-btn variant="outlined" @click="$router.push('/p4p')" color="error"
         >SUBSCRIBE</v-btn
       >
-      <v-btn variant="outlined" @click="$router.push('/schedule')" color="info"
+      <v-btn variant="outlined" @click="$router.push('/login')" color="info"
         >로그인</v-btn
       >
     </div>

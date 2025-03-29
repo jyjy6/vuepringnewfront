@@ -203,9 +203,29 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
-import { computed, reactive } from "vue";
+import axios, { AxiosError } from "axios";
+import { computed, ref, watch } from "vue";
 import DivisionData from "../assets/DivisionData";
+import { useBoxerDataStore } from "../store/boxerDataStore";
+import { Boxer } from "../types/BoxerTypes";
+import { useSecureApi } from "../composables/useSecureApi";
+
+const props = defineProps<{
+  modifyId?: number;
+  isPut?: boolean;
+}>();
+
+const boxerDataStore = useBoxerDataStore();
+watch(
+  () => props.modifyId,
+  async (newId) => {
+    if (props.isPut && newId) {
+      await boxerDataStore.getOneBoxer(newId);
+      form.value = boxerDataStore.boxers[0];
+    }
+  },
+  { immediate: true } // ✅ 컴포넌트 마운트 시에도 실행
+);
 
 // DivisionData의 `routerlink` 값을 가져와 `items`로 변환
 const divisionItems = computed(() =>
@@ -215,7 +235,8 @@ const divisionItems = computed(() =>
   }))
 );
 
-const form = reactive({
+const form = ref<Boxer>({
+  id: -1,
   division: "",
   name: "",
   rating: 0,
@@ -227,15 +248,14 @@ const form = reactive({
   title: "",
   birthname: "",
   sex: "male",
-  age: "",
+  age: 0,
   country: "",
   stance: "orthodox",
   reach: "",
   height: "",
   birthplace: "",
-  ranking: null as number | null,
+  ranking: null,
   author: "",
-  fileURLs: [] as string[],
   boxerImg: "",
 });
 
@@ -253,24 +273,38 @@ const addPercentage = (event: Event) => {
       value = value + "%";
     }
 
-    form.ko = value;
+    form.value.ko = value;
   } else {
     // If not a number, clear the field
-    form.ko = "";
+    form.value.ko = "";
   }
 };
 
 const setDefaultRank = () => {
-  if (form.ranking === null) {
-    form.ranking = 9999; // Default value when no input
+  if (form.value.ranking === null) {
+    form.value.ranking = 9999; // Default value when no input
   }
 };
 
+const api = useSecureApi();
 const submitForm = async () => {
+  if (props.isPut) {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}/api/boxers/modify`,
+        form.value
+      );
+      alert("잘 수정됐음" + response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("에러남" + error.response);
+      }
+    }
+  }
   try {
-    const response = await axios.post(
+    const response = await api.securePost(
       `${import.meta.env.VITE_API_BASE_URL}/api/boxers/add`,
-      form
+      form.value
     );
     console.log("성공적으로 전송되었습니다:", response.data);
     window.location.reload(); // Reload the page

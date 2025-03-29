@@ -27,7 +27,7 @@
 
       <div class="d-flex align-center">
         <v-text-field
-          v-model="form.name"
+          v-model="form.displayName"
           label="닉네임"
           required
           :disabled="isNameDuplicateChecked"
@@ -36,7 +36,7 @@
           class="mr-2"
         />
         <v-btn
-          :disabled="!form.name || isNameDuplicateChecked"
+          :disabled="!form.displayName || isNameDuplicateChecked"
           @click="checkNameDuplicate"
           color="info"
           :loading="checkingName"
@@ -79,7 +79,7 @@
 
       <v-text-field v-model="form.phone" label="전화번호" />
 
-      <v-text-field v-model="form.address.country" label="국가" />
+      <!-- <v-text-field v-model="form.address.country" label="국가" />
 
       <v-text-field
         v-model="form.address.mainAddress"
@@ -93,7 +93,7 @@
         v-model="form.profileImage"
         label="프로필 이미지를 업로드해주세요!"
         readonly
-      />
+      /> -->
       <p>현재 프로필이미지</p>
       <v-img
         :src="props.formData?.profileImage"
@@ -146,41 +146,28 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useSecureApi } from "../composables/useSecureApi";
 import { useLoginStore } from "../store/loginStore";
-
-
-interface RegisterForm {
-  username: string;
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  profileImage: string;
-  address: {
-    country: string;
-    mainAddress: string;
-    subAddress: string;
-  };
-}
+import { UserInfo } from "../types/UserInfoTypes";
 
 const props = defineProps<{
   //수정시에 들어오는 기존 폼의 데이타
   apiURL: string;
-  formData?: Partial<RegisterForm>;
-  fields: RegisterForm;
+  formData?: Partial<UserInfo>;
+  fields: UserInfo;
   isPut?: boolean;
 }>();
 
 const valid = ref(false);
 const passwordConfirm = ref("");
 const termsAgreed = ref(false);
-const form = ref<RegisterForm>({
+const form = ref<UserInfo>({
   username: "",
-  name: "",
-  email: "",
   password: "",
+  email: "",
+  displayName: "",
   phone: "",
-  profileImage: "",
-  address: { country: "", mainAddress: "", subAddress: "" },
+  createdAt: "",
+  updatedAt: "",
+  role: "",
 });
 
 onMounted(() => {
@@ -192,7 +179,7 @@ onMounted(() => {
 
     if (props.isPut) {
       isUsernameDuplicateChecked.value = true;
-      if (props.formData.name === form.value.name) {
+      if (props.formData.displayName === form.value.displayName) {
         isNameDuplicateChecked.value = true;
       }
     }
@@ -224,7 +211,7 @@ watch(
 );
 
 watch(
-  () => form.value.name,
+  () => form.value.displayName,
   () => {
     if (isNameDuplicateChecked.value) {
       isNameDuplicateChecked.value = false;
@@ -242,11 +229,15 @@ const checkUsernameDuplicate = async () => {
   usernameHint.value = "";
 
   try {
-    const response = await api.securePost("/api/auth/check-username", {
-      username: form.value.username,
-    });
+    const response = await api.securePost(
+      `${import.meta.env.VITE_API_BASE_URL}/api/members/check-username`,
+      {
+        username: form.value.username,
+      }
+    );
 
     if (response.data.available) {
+      console.log(response.data.message);
       isUsernameDuplicateChecked.value = true;
       usernameHint.value = "사용 가능한 아이디입니다";
     } else {
@@ -262,16 +253,19 @@ const checkUsernameDuplicate = async () => {
 
 // 닉네임 중복 확인
 const checkNameDuplicate = async () => {
-  if (!form.value.name) return;
+  if (!form.value.displayName) return;
 
   checkingName.value = true;
   nameError.value = "";
   nameHint.value = "";
 
   try {
-    const response = await api.securePost("/api/auth/check-name", {
-      name: form.value.name,
-    });
+    const response = await api.securePost(
+      `${import.meta.env.VITE_API_BASE_URL}/api/members/check-displayname`,
+      {
+        name: form.value.displayName,
+      }
+    );
 
     if (response.data.available) {
       isNameDuplicateChecked.value = true;
@@ -325,12 +319,19 @@ const submitForm = async () => {
   }
 
   //이미지 파일주소를 S3의 정식 image/ 폴더로 옮기는 작업
-  await fileUploadRef.value?.confirmFile();
+  // if (fileUploadRef.value != null) {
+  //   console.log("파일업로드밸류 널아님");
+  //   console.log(fileUploadRef.value);
+  //   await fileUploadRef.value?.confirmFile();
+  // }
 
   if (props.isPut) {
     form.value.username = props.formData?.username as string;
     try {
-      const response = await api.securePut(props.apiURL, form.value);
+      const response = await api.securePut(
+        `${import.meta.env.VITE_API_BASE_URL}` + props.apiURL,
+        form.value
+      );
       localStorage.setItem("user", JSON.stringify(response.data.user));
       loginStore.loadUserFromLocalStorage();
       router.push("/");
@@ -341,7 +342,10 @@ const submitForm = async () => {
     }
   } else {
     try {
-      const response = await api.securePost(props.apiURL, form.value);
+      const response = await api.securePost(
+        `${import.meta.env.VITE_API_BASE_URL}` + props.apiURL,
+        form.value
+      );
       alert("회원가입이 완료되었습니다!");
       router.push("/login");
     } catch (error) {
@@ -353,21 +357,21 @@ const submitForm = async () => {
 
 //카카오 주소ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
-const openKakaoAddressSearch = () => {
-  //@ts-ignore
-  new window.daum.Postcode({
-    oncomplete: (data: { roadAddress: string }) => {
-      form.value.address.mainAddress = data.roadAddress; // 도로명 주소 입력
-    },
-  }).open();
-};
-// 카카오 API 스크립트 로드
-onMounted(() => {
-  const script = document.createElement("script");
-  script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
-  script.onload = () => console.log("카카오 주소 API 로드 완료");
-  document.head.appendChild(script);
-});
+// const openKakaoAddressSearch = () => {
+//   //@ts-ignore
+//   new window.daum.Postcode({
+//     oncomplete: (data: { roadAddress: string }) => {
+//       form.value.address.mainAddress = data.roadAddress; // 도로명 주소 입력
+//     },
+//   }).open();
+// };
+// // 카카오 API 스크립트 로드
+// onMounted(() => {
+//   const script = document.createElement("script");
+//   script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+//   script.onload = () => console.log("카카오 주소 API 로드 완료");
+//   document.head.appendChild(script);
+// });
 </script>
 <style scoped>
 .preview {
@@ -381,3 +385,8 @@ v-form > * {
   max-width: 50%;
 }
 </style>
+<script lang="ts">
+export default {
+  name: "RegisterFormComponent",
+};
+</script>

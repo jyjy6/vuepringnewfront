@@ -2,7 +2,7 @@ export interface Boxer {
   id: number; // primary key
   division: string;
   name: string;
-  rating: number | null;
+  rating: number;
   bouts: number | null;
   rounds: number | null;
   ko: string;
@@ -19,6 +19,6 @@ export interface Boxer {
   birthplace: string; // @JsonProperty("birthplace")에 대응
   author: string;
   ranking: number | null;
-  createdAt: string; // Java LocalDateTime -> ISO 문자열 ("2025-03-26T12:00:00")
+  createdAt?: string; // Java LocalDateTime -> ISO 문자열 ("2025-03-26T12:00:00")
   boxerImg: string;
 }

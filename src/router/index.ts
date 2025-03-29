@@ -8,6 +8,18 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "home" */ "../pages/index.vue"),
   },
   {
+    path: "/login",
+    name: "Login",
+    component: () =>
+      import(/* webpackChunkName: "login" */ "../pages/login.vue"),
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: () =>
+      import(/* webpackChunkName: "Register" */ "../pages/register.vue"),
+  },
+  {
     path: "/news",
     name: "News",
     component: () => import(/* webpackChunkName: "news" */ "../pages/news.vue"),
@@ -37,6 +49,14 @@ const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(
             /* webpackChunkName: "adminboxerinput" */ "../pages/admin/boxerinput.vue"
+          ),
+      },
+      {
+        path: "boxermodify/:id",
+        name: "AdminBoxerModify",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminboxermodify" */ "../pages/admin/boxermodify.vue"
           ),
       },
     ],

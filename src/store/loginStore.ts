@@ -3,12 +3,13 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios, { AxiosError } from "axios";
 import { UserInfo } from "../types/UserInfoTypes";
-
+import { useSecureApi } from "../composables/useSecureApi";
 
 export const useLoginStore = defineStore("login", () => {
   const isLogin = ref(false);
   const user = ref<UserInfo | null>();
   const router = useRouter();
+  const api = useSecureApi();
 
   // ✅ 앱이 실행될 때 로컬 스토리지에서 유저 정보 불러오기
   const loadUserFromLocalStorage = () => {
@@ -24,8 +25,8 @@ export const useLoginStore = defineStore("login", () => {
     password: string
   ): Promise<boolean | undefined> => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/login`,
+      const response = await api.securePost(
+        `${import.meta.env.VITE_API_BASE_URL}/login/jwt`,
         {
           username,
           password,
@@ -62,7 +63,7 @@ export const useLoginStore = defineStore("login", () => {
 
   const logout = async () => {
     try {
-      await axios.post("/api/auth/logout");
+      await api.securePost("/api/auth/logout", {});
     } catch (error) {
       console.error("로그아웃 오류:", error);
     } finally {

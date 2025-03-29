@@ -1,7 +1,7 @@
 <template>
   <h1 class="ranking-title">CURRENT POUND FOR POUND TOP 10</h1>
   <div
-    class="ranking-list"
+    class="ranking-list cursor-pointer"
     v-for="(player, index) in p4pTop10"
     :key="player.id"
     @click="openBoxerModal(index)"
@@ -172,6 +172,7 @@ import DivisionData from "../assets/DivisionData";
 import BoxerDetailModalComponent from "../components/BoxerDetailModalComponent.vue";
 import { useBoxerDataStore } from "../store/boxerDataStore";
 import { nextTick } from "process";
+import { useSecureApi } from "../composables/useSecureApi";
 
 const p4pStore = useP4PStore();
 const p4pTop10 = computed(() => p4pStore.p4pData);
@@ -280,37 +281,29 @@ const addToP4PArray = () => {
   boxers.value = null;
 };
 
+const api = useSecureApi();
 // P4P 배열을 서버로 전송
 const insertP4P = async () => {
   try {
-    const rankingReset = await axios.post(
+    const rankingReset = await api.securePost(
       `${import.meta.env.VITE_API_BASE_URL}/api/p4p/reset`,
-      {},
-      {
-        withCredentials: true, // 쿠키를 요청에 포함시킴
-      }
+      {}
     );
     console.log("이전 랭킹이 성공적으로 저장되었습니다:", rankingReset.data);
 
     // P4P 배열 데이터를 개별적으로 서버에 전송
     for (const p4pData of p4pFormArray.value) {
-      const response = await axios.post(
+      const response = await api.securePost(
         `${import.meta.env.VITE_API_BASE_URL}/api/p4p`,
-        p4pData,
-        {
-          withCredentials: true, // 쿠키를 요청에 포함시킴
-        }
+        p4pData
       );
       console.log("성공적으로 전송되었습니다:", response.data);
     }
 
     // 모든 데이터 전송이 완료된 후 로그 저장 요청
-    const logResponse = await axios.post(
+    const logResponse = await api.securePost(
       `${import.meta.env.VITE_API_BASE_URL}/api/p4p/log`,
-      {},
-      {
-        withCredentials: true, // 쿠키를 요청에 포함시킴
-      }
+      {}
     );
     console.log("로그가 성공적으로 저장되었습니다:", logResponse.data);
 
@@ -324,23 +317,23 @@ const insertP4P = async () => {
   }
 };
 
-/* 해당 로직은 for문쳐서 하는것 Promise all로 개선할 수 있음.
+/* 위 로직은 for문쳐서 하는것 -> 아래의 Promise all로 개선할 수 있음.
 const insertP4P = async () => {
   try {
-    const rankingReset = await axios.post('http://localhost:8080/api/p4p/reset', {}, {
+    const rankingReset = await api.securePost('http://localhost:8080/api/p4p/reset', {}, {
       withCredentials: true,
     });
     console.log('이전 랭킹이 성공적으로 저장되었습니다:', rankingReset.data);
 
     // P4P 배열 데이터를 병렬적으로 서버에 전송
     const promises = p4pFormArray.value.map(p4pData =>
-      axios.post('http://localhost:8080/api/p4p', p4pData, { withCredentials: true })
+      api.securePost('http://localhost:8080/api/p4p', p4pData, { withCredentials: true })
     );
     const responses = await Promise.all(promises);
     responses.forEach(response => console.log('성공적으로 전송되었습니다:', response.data));
 
     // 로그 저장
-    const logResponse = await axios.post('http://localhost:8080/api/p4p/log', {}, {
+    const logResponse = await api.securePost('http://localhost:8080/api/p4p/log', {}, {
       withCredentials: true,
     });
     console.log('로그가 성공적으로 저장되었습니다:', logResponse.data);
