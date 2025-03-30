@@ -197,6 +197,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("keydown", handleEscKey);
+  boxerDataStore.modalOpen = false;
 });
 
 // 별점 함수

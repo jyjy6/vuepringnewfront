@@ -1,22 +1,24 @@
 <template>
-  <RegisterFormComponent :fields="emptyFields" :apiURL="'/api/auth/register'" />
+  회원가입
+  <RegisterFormComponent
+    :fields="emptyFields"
+    :apiURL="'/api/members/register'"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { UserInfo } from "../types/UserInfoTypes";
+import RegisterFormComponent from "../components/RegisterFormComponent.vue";
 
-const emptyFields = ref({
+const emptyFields = ref<UserInfo>({
   username: "",
-  name: "",
-  email: "",
   password: "",
+  email: "",
+  displayName: "",
   phone: "",
-  profileImage: "",
-  address: {
-    country: "",
-    mainAddress: "",
-    subAddress: "",
-  },
+  createdAt: "",
+  updatedAt: "",
+  role: "",
 });
 </script>

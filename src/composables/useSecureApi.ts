@@ -8,8 +8,9 @@ export const useSecureApi = () => {
   const error = ref<AxiosError | null>(null);
 
   const getCsrfTokenFromCookie = () => {
-    const match = document.cookie.match(/(^| )csrf-token=([^;]+)/);
-    return match ? match[2] : null; // 쿠키에서 'csrf-token' 값 추출
+    console.log("All cookies:", document.cookie);
+    const match = document.cookie.match(/(^| )XSRF-TOKEN=([^;]+)/);
+    return match ? match[2] : null;
   };
 
   // CSRF 토큰 가져오기
@@ -24,31 +25,34 @@ export const useSecureApi = () => {
 
     isLoading.value = true;
     error.value = null;
-
     try {
-      //POST 요청으로 변경하고, Cache-Control: no-store 헤더를 추가하여 캐싱을 방지하는 것이 더 안전.
-      const response = await axios.get("/api/auth/csrf");
-      csrfToken.value = response.data.csrfToken;
-      return csrfToken.value;
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/auth/csrf`, {
+        withCredentials: true,
+      });
+      console.log("api/auth/csrf발동");
+      // 쿠키에서 다시 토큰 추출
+      const refreshedTokenFromCookie = getCsrfTokenFromCookie();
+      if (refreshedTokenFromCookie) {
+        csrfToken.value = refreshedTokenFromCookie;
+        return csrfToken.value;
+      }
     } catch (err) {
       console.error("CSRF 토큰을 가져오는 데 실패했습니다:", err);
-      error.value = err as AxiosError;
       return null;
-    } finally {
-      isLoading.value = false;
     }
   };
 
   // 보안 POST 요청
   const securePost = async (url: string, data: any) => {
-    console.log("보안POST요청발동");
     const token = await fetchCsrfToken();
 
+    console.log("마지막토큰:" + token);
     return axios.post(url, data, {
-      //헤더는 미들웨어에서 검증하기위한것 쿠키검증은 필요없음
       headers: {
-        "X-CSRF-Token": token,
+        "X-XSRF-TOKEN": token,
       },
+
+      withCredentials: true,
     });
   };
 
@@ -56,10 +60,9 @@ export const useSecureApi = () => {
   const securePut = async (url: string, data: any) => {
     console.log("보안PUT요청발동");
     const token = await fetchCsrfToken();
-
     return axios.put(url, data, {
       headers: {
-        "X-CSRF-Token": token,
+        "X-XSRF-TOKEN": token,
       },
     });
   };
@@ -68,10 +71,9 @@ export const useSecureApi = () => {
   const secureDelete = async (url: string) => {
     console.log("보안delete요청발동");
     const token = await fetchCsrfToken();
-
     return axios.delete(url, {
       headers: {
-        "X-CSRF-Token": token,
+        "X-XSRF-TOKEN": token,
       },
     });
   };

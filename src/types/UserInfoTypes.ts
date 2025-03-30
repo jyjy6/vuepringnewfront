@@ -1,5 +1,5 @@
 export interface UserInfo {
-  id: number;
+  id?: number;
   username: string;
   password: string;
   email?: string;
@@ -7,5 +7,6 @@ export interface UserInfo {
   phone?: string;
   createdAt?: string;
   updatedAt?: string;
+  profileImage?: string;
   role: string;
 }
