@@ -34,8 +34,19 @@
       <v-btn variant="outlined" @click="$router.push('/p4p')" color="error"
         >SUBSCRIBE</v-btn
       >
-      <v-btn variant="outlined" @click="$router.push('/login')" color="info"
+      <v-btn
+        v-if="!loginStore.isLogin"
+        variant="outlined"
+        @click="$router.push('/login')"
+        color="info"
         >로그인</v-btn
+      >
+      <v-btn
+        v-else
+        variant="outlined"
+        @click="loginStore.logout()"
+        color="warning"
+        >로그아웃</v-btn
       >
     </div>
   </v-app-bar>
@@ -142,12 +153,15 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import { useLoginStore } from "../store/loginStore";
 
+const loginStore = useLoginStore();
 const router = useRouter();
 const drawer = ref(false);
 const isScrolled = ref(false);
 const divisionsModal = ref(false);
-
+console.log("로그인스토어유저");
+console.log(loginStore.user);
 const boxingDivisions = [
   "Heavy",
   "Cruiser",
