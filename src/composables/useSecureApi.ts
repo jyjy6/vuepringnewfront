@@ -55,6 +55,22 @@ export const useSecureApi = () => {
       withCredentials: true,
     });
   };
+  // 보안 회원로그인 POST 요청
+  const secureJWTPost = async (url: string, data: any) => {
+    const token = await fetchCsrfToken();
+    const accessToken = localStorage.getItem("accessToken"); // ✅ JWT 토큰 가져오기
+
+    console.log("마지막 토큰:", token);
+    console.log("JWT 토큰:", accessToken);
+
+    return axios.post(url, data, {
+      headers: {
+        "X-XSRF-TOKEN": token,
+        Authorization: `Bearer ${accessToken}`, // ✅ JWT 토큰 추가
+      },
+      withCredentials: true,
+    });
+  };
 
   // 보안 PUT 요청
   const securePut = async (url: string, data: any) => {
@@ -81,6 +97,7 @@ export const useSecureApi = () => {
   return {
     fetchCsrfToken,
     securePost,
+    secureJWTPost,
     securePut,
     secureDelete,
     isLoading,

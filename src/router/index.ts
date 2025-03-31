@@ -59,6 +59,14 @@ const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "adminboxermodify" */ "../pages/admin/boxermodify.vue"
           ),
       },
+      {
+        path: "newswrite",
+        name: "AdminNewsWrite",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminnewswrite" */ "../pages/admin/newswrite.vue"
+          ),
+      },
     ],
   },
 ];

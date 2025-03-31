@@ -160,8 +160,6 @@ const router = useRouter();
 const drawer = ref(false);
 const isScrolled = ref(false);
 const divisionsModal = ref(false);
-console.log("로그인스토어유저");
-console.log(loginStore.user);
 const boxingDivisions = [
   "Heavy",
   "Cruiser",

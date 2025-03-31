@@ -11,9 +11,12 @@
 import { onMounted } from "vue";
 import NavbarLayout from "./layouts/NavbarLayout.vue";
 import { useLoginStore } from "./store/loginStore";
+import { nextTick } from "vue";
 const loginStore = useLoginStore();
 onMounted(() => {
-  console.log("발동");
   loginStore.loadUserFromLocalStorage();
+  nextTick(() => {
+    console.log(loginStore.user);
+  });
 });
 </script>
