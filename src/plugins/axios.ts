@@ -68,8 +68,11 @@ if (accessToken) {
       console.log("Axios Response Interceptor - Error");
       const originalRequest = error.config;
 
-      // /api/auth/login 요청이면 인터셉터 적용 안 함
-      if (originalRequest.url === "/api/login/jwt") {
+      // /api/auth/login, /refresh-token 요청이면 인터셉터 적용 안 함
+      if (
+        originalRequest.url === "/api/login/jwt" ||
+        originalRequest.url.includes("/refresh-token")
+      ) {
         console.log("Login request, skipping interceptor");
         return Promise.reject(error);
       }
