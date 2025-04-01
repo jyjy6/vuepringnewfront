@@ -191,7 +191,16 @@ const uploadImage = async () => {
 
     const presignedUrl = response.data.presignedUrl;
     const imageUrl: string = response.data.imageUrl;
-    await axios.put(presignedUrl, imageFile.value, {});
+    console.log("유알엘");
+    console.log(presignedUrl);
+    console.log("유알엘2");
+    console.log(imageUrl);
+
+    // axios인터셉터때문에 presignedUrl PUT 요청은 레거시 fetch방식으로
+    await fetch(presignedUrl, {
+      method: "PUT",
+      body: imageFile.value,
+    });
 
     fileURLs.value.push(imageUrl);
 

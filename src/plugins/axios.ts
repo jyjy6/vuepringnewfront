@@ -8,6 +8,7 @@ const withCredentials = true;
 
 const accessToken = localStorage.getItem("accessToken");
 
+// 액세스토큰 갱신 함수
 const refreshAccessToken = async () => {
   console.log("refreshAccessToken: Function invoked");
 
@@ -43,7 +44,7 @@ if (accessToken) {
   axios.interceptors.request.use(
     async (config) => {
       console.log("Axios Request Interceptor - Start");
-        // 매 요청마다 로컬스토리지에서 최신 토큰을 가져옵니다
+      // 매 요청마다 로컬스토리지에서 최신 토큰을 가져옵니다
       const currentAccessToken = localStorage.getItem("accessToken");
       if (currentAccessToken) {
         config.headers["Authorization"] = `Bearer ${currentAccessToken}`;
@@ -74,7 +75,8 @@ if (accessToken) {
       // /api/auth/login, /refresh-token 요청이면 인터셉터 적용 안 함
       if (
         originalRequest.url === "/api/login/jwt" ||
-        originalRequest.url.includes("/refresh-token")
+        originalRequest.url.includes("/refresh-token") ||
+        originalRequest.url.includes("amazonaws.com")
       ) {
         console.log("Login request, skipping interceptor");
         return Promise.reject(error);
