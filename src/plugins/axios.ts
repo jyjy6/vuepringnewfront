@@ -43,12 +43,15 @@ if (accessToken) {
   axios.interceptors.request.use(
     async (config) => {
       console.log("Axios Request Interceptor - Start");
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
+        // 매 요청마다 로컬스토리지에서 최신 토큰을 가져옵니다
+      const currentAccessToken = localStorage.getItem("accessToken");
+      if (currentAccessToken) {
+        config.headers["Authorization"] = `Bearer ${currentAccessToken}`;
+      }
       console.log(
         "Authorization Header Added:",
         config.headers["Authorization"]
       );
-
       console.log("Axios Request Interceptor - End");
       return config;
     },
