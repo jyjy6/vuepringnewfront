@@ -290,7 +290,7 @@ const api = useSecureApi();
 const submitForm = async () => {
   if (props.isPut) {
     try {
-      const response = await axios.put(
+      const response = await api.securePost(
         `${import.meta.env.VITE_API_BASE_URL}/api/boxers/modify`,
         form.value
       );
@@ -307,6 +307,7 @@ const submitForm = async () => {
       form.value
     );
     console.log("성공적으로 전송되었습니다:", response.data);
+
     window.location.reload(); // Reload the page
   } catch (error) {
     if (axios.isAxiosError(error)) {

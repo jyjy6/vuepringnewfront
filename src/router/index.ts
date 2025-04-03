@@ -59,7 +59,59 @@ const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "adminboxermodify" */ "../pages/admin/boxermodify.vue"
           ),
       },
+      {
+        path: "newswrite",
+        name: "AdminNewsWrite",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminnewswrite" */ "../pages/admin/newswrite.vue"
+          ),
+      },
+      {
+        path: "shopinput",
+        name: "AdminShopInput",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminshopinput" */ "../pages/admin/shopinput.vue"
+          ),
+      },
+      {
+        path: "homevideoinput",
+        name: "AdminHomeVideoInput",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminhomevideoinput" */ "../pages/admin/homevideoinput.vue"
+          ),
+      },
     ],
+  },
+
+  {
+    path: "/shop",
+    name: "Shop",
+    component: import(/* webpackChunkName: "shop" */ "../pages/shop.vue"),
+    children: [
+      {
+        path: "detail/:id",
+        name: "ShopDetail",
+        component: () =>
+          import(
+            /* webpackChunkName: "shopdetail" */ "../components/ShopDetailComponent.vue"
+          ),
+        props: true,
+      },
+    ],
+  },
+  {
+    path: "/cart",
+    name: "Cart",
+    component: () => import(/* webpackChunkName: "cart" */ "../pages/cart.vue"),
+  },
+  {
+    path: "/order",
+    name: "Order",
+    component: () =>
+      import(/* webpackChunkName: "order" */ "../pages/order.vue"),
   },
 ];
 

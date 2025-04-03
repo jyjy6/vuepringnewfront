@@ -1,10 +1,7 @@
 import axios from "axios";
 import { ref } from "vue";
 
-
 export function useImageUpload() {
-  
-
   const singleImgUrl = ref("");
   //개별이미지 업로드 용 ref
 
@@ -14,28 +11,29 @@ export function useImageUpload() {
       const files = Array.from(input.files);
 
       for (const file of files) {
-        const fileName = encodeURIComponent(file.name);
+        const fileName = file.name;
         // const role = store.state.user.role; 나중에 role추가하셈 로그인기능완성되면
-        
 
         try {
           const response = await axios.get(
             // 여기도 role하드코딩돼있는거 추가하기
-            `${import.meta.env.VITE_API_BASE_URL}/api/images/presigned-url?filename=${fileName}&role=admin`
+            `${
+              import.meta.env.VITE_API_BASE_URL
+            }/api/images/presigned-url?filename=${fileName}&role=admin`
           );
-          const presignedUrl = response.data;
+          const presignedUrl = response.data.presignedUrl;
+          const imageUrl: string = response.data.imageUrl;
 
-          const uploadResult = await axios.put(presignedUrl, file, {
-            headers: {
-              "Content-Type": file.type,
-            },
+          console.log(presignedUrl);
+          const uploadResult = await fetch(presignedUrl, {
+            method: "PUT",
+            body: file,
           });
 
           if (uploadResult.status === 200) {
-            const fileURL = presignedUrl.split("?")[0]; // 쿼리 매개변수를 제거하여 실제 파일 URL을 얻습니다.
-            form.push(fileURL);
-            singleImgUrl.value = fileURL;
-            console.log("File uploaded successfully:", fileURL);
+            form.push(imageUrl);
+            singleImgUrl.value = imageUrl;
+            console.log("File uploaded successfully:", imageUrl);
           } else {
             console.error("File upload failed:", uploadResult.statusText);
           }

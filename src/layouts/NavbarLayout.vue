@@ -34,6 +34,9 @@
       <v-btn variant="outlined" @click="$router.push('/p4p')" color="error"
         >SUBSCRIBE</v-btn
       >
+      <v-btn variant="outlined" @click="$router.push('/cart')" color="primary"
+        >장바구니</v-btn
+      >
       <v-btn
         v-if="!loginStore.isLogin"
         variant="outlined"
@@ -160,8 +163,6 @@ const router = useRouter();
 const drawer = ref(false);
 const isScrolled = ref(false);
 const divisionsModal = ref(false);
-console.log("로그인스토어유저");
-console.log(loginStore.user);
 const boxingDivisions = [
   "Heavy",
   "Cruiser",
@@ -204,7 +205,7 @@ const handleNavigation = (item) => {
 };
 
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 50;
+  isScrolled.value = window.scrollY > 250;
 };
 
 onMounted(() => {

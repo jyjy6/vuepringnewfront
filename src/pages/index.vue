@@ -71,12 +71,14 @@
       <!-- Home Video -->
       <v-col v-if="homeVideoData" cols="12" md="6">
         <v-card class="home-video pa-4">
-          <v-card-title>{{ homeVideoData.title }}</v-card-title>
-          <v-card-text>
-            <v-responsive aspect-ratio="16/9">
+          <v-card-title class="text-h5 text-wrap">{{
+            homeVideoData.title
+          }}</v-card-title>
+          <v-card-text class="pa-0">
+            <v-responsive aspect-ratio="16/9" class="mb-4">
               <iframe
                 width="100%"
-                height="315"
+                height="100%"
                 :src="`https://www.youtube.com/embed/${extractVideoId(
                   homeVideoData.link
                 )}`"
@@ -85,7 +87,9 @@
                 allowfullscreen
               ></iframe>
             </v-responsive>
-            <p v-html="homeVideoData.content"></p>
+            <div class="content-wrapper overflow-auto">
+              <div v-html="homeVideoData.content"></div>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -338,15 +342,32 @@ const limitedNewsData = computed(() =>
   margin: 0 auto;
 }
 
-.home-video {
-  margin: 20px auto;
-  width: 100%; /* 폭을 100%로 설정하여 레이아웃을 유지 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.home-video .v-card-title {
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.4;
 }
-.home-video p {
-  font-size: 1.2rem;
+
+.home-video iframe {
+  border-radius: 4px;
+  height: 400px;
+}
+
+.content-wrapper {
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.content-wrapper img {
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.content-wrapper :deep(*) {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  overflow: visible;
 }
 
 .news-list {
