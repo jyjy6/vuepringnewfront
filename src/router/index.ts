@@ -67,6 +67,22 @@ const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "adminnewswrite" */ "../pages/admin/newswrite.vue"
           ),
       },
+      {
+        path: "shopinput",
+        name: "AdminShopInput",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminshopinput" */ "../pages/admin/shopinput.vue"
+          ),
+      },
+      {
+        path: "homevideoinput",
+        name: "AdminHomeVideoInput",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminhomevideoinput" */ "../pages/admin/homevideoinput.vue"
+          ),
+      },
     ],
   },
 
@@ -85,6 +101,17 @@ const routes: Array<RouteRecordRaw> = [
         props: true,
       },
     ],
+  },
+  {
+    path: "/cart",
+    name: "Cart",
+    component: () => import(/* webpackChunkName: "cart" */ "../pages/cart.vue"),
+  },
+  {
+    path: "/order",
+    name: "Order",
+    component: () =>
+      import(/* webpackChunkName: "order" */ "../pages/order.vue"),
   },
 ];
 

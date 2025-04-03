@@ -1,55 +1,114 @@
 <template>
-  <div class="product-list">
+  <v-container>
     <router-view></router-view>
-    <h1>상품 리스트</h1>
-    <div class="product-grid">
-      <router-link
-        v-for="item in paginatedItems"
-        :key="item.id"
-        :to="{ name: 'ShopDetail', params: { id: item.id } }"
-        class="product-card"
-        @click="scrollToTop"
-      >
-        <img :src="item.fileURLs[0]" alt="상품 이미지" class="product-image" />
-        <h2 class="product-name">{{ item.name }}</h2>
-        <p class="product-price">{{ item.price }} 원</p>
-        <p class="product-shipping">배송 정보: {{ item.shipping }}</p>
-        <p class="product-manufacturer">제조사: {{ item.manufacturer }}</p>
-        <p class="product-brand">브랜드: {{ item.brand }}</p>
-        <p class="product-condition">상태: {{ item.condition }}</p>
-        <p class="product-origin">원산지: {{ item.origin }}</p>
-        <p class="product-date">등록일: {{ formatDate(item.createdAt) }}</p>
-      </router-link>
-    </div>
 
-    <div class="pagination">
-      <button
-        @click="prevPage"
-        :disabled="currentPage === 1"
-        class="pagination-button"
-      >
-        이전
-      </button>
+    <v-row justify="center" class="mb-6">
+      <v-col cols="12">
+        <h1 class="text-h4 font-weight-bold text-center primary--text">
+          상품 리스트
+        </h1>
+      </v-col>
+    </v-row>
 
-      <span v-for="page in totalPages" :key="page" class="page-number">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: currentPage === page }"
-          class="page-button"
-        >
-          {{ page }}
-        </button>
-      </span>
+    <v-row justify="center">
+      <v-col cols="12" lg="9" md="10">
+        <v-row>
+          <v-col
+            v-for="item in paginatedItems"
+            :key="item.id"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="3"
+          >
+            <v-card
+              :to="{ name: 'ShopDetail', params: { id: item.id } }"
+              @click="scrollToTop"
+              elevation="3"
+              class="rounded-lg transition-swing h-100"
+              hover
+            >
+              <v-img
+                :src="item.fileURLs[0]"
+                height="180"
+                cover
+                class="align-end"
+                gradient="to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6)"
+              >
+                <v-chip
+                  color="red-lighten-1"
+                  class="ma-2 font-weight-bold"
+                  size="small"
+                  variant="elevated"
+                >
+                  {{ item.condition }}
+                </v-chip>
+              </v-img>
 
-      <button
-        @click="nextPage"
-        :disabled="currentPage === totalPages"
-        class="pagination-button"
-      >
-        다음
-      </button>
-    </div>
-  </div>
+              <v-card-title class="text-truncate">{{ item.name }}</v-card-title>
+
+              <v-card-text>
+                <v-row align="center" class="mx-0 mb-2">
+                  <div class="text-h6 font-weight-bold red--text">
+                    {{ item.price }} 원
+                  </div>
+                </v-row>
+
+                <div
+                  class="text-caption text-medium-emphasis d-flex align-center mb-1"
+                >
+                  <v-icon size="small" class="mr-1">mdi-truck-delivery</v-icon>
+                  {{ item.shipping }}
+                </div>
+
+                <div
+                  class="text-caption text-medium-emphasis d-flex align-center mb-1"
+                >
+                  <v-icon size="small" class="mr-1">mdi-factory</v-icon>
+                  {{ item.manufacturer }}
+                </div>
+
+                <div
+                  class="text-caption text-medium-emphasis d-flex align-center mb-1"
+                >
+                  <v-icon size="small" class="mr-1">mdi-tag</v-icon>
+                  {{ item.brand }}
+                </div>
+
+                <div
+                  class="text-caption text-medium-emphasis d-flex align-center mb-1"
+                >
+                  <v-icon size="small" class="mr-1">mdi-map-marker</v-icon>
+                  {{ item.origin }}
+                </div>
+
+                <div
+                  class="text-caption text-medium-emphasis d-flex align-center"
+                >
+                  <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+                  {{ formatDate(item.createdAt) }}
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+
+    <v-row justify="center" class="mt-6">
+      <v-col cols="auto">
+        <v-pagination
+          v-model="shopStore.currentPage"
+          :length="shopStore.totalPages"
+          :total-visible="7"
+          rounded
+          prev-icon="mdi-chevron-left"
+          next-icon="mdi-chevron-right"
+          @update:model-value="handlePageChange"
+        ></v-pagination>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -58,10 +117,12 @@ import { useShopStore } from "../store/shopStore";
 
 const shopStore = useShopStore();
 
-const itemList = computed(() => shopStore.shopData);
 onMounted(() => {
   shopStore.fetchShopItemData();
 });
+const handlePageChange = (page: number) => {
+  shopStore.setPage(page);
+};
 
 const formatDate = (dateString: string) => {
   const options: any = { year: "numeric", month: "long", day: "numeric" };
@@ -69,166 +130,25 @@ const formatDate = (dateString: string) => {
 };
 
 // 페이지네이션
-const currentPage = ref(1);
-const itemsPerPage = 8;
-
 const paginatedItems = computed(() => {
-  if (!itemList.value || itemList.value.length === 0) {
+  if (!shopStore.shopData || shopStore.shopData.length === 0) {
     return [];
+  } else {
+    return shopStore.shopData;
   }
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return itemList.value.slice(start, start + itemsPerPage);
 });
 
-const totalPages = computed(() => {
-  if (!itemList.value || !Array.isArray(itemList.value)) {
-    return 0; // itemList가 비어있거나 undefined이면 페이지 수는 0으로 반환
-  }
-  return Math.ceil(itemList.value.length / itemsPerPage);
-});
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
-const goToPage = (page: number) => {
-  currentPage.value = page;
-};
 function scrollToTop() {
-  window.scrollTo(0, 0); // 페이지 상단으로 스크롤
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 </script>
 
 <style scoped>
-.product-list {
-  padding: 20px;
-  font-family: "Arial", sans-serif;
+.v-card {
+  transition: transform 0.3s ease-in-out;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.product-grid {
-  display: grid;
-  width: 70%;
-  grid-template-columns: repeat(auto-fill, minmax(22%, 1fr));
-  gap: 20px;
-  margin: 0 auto;
-}
-
-.product-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-  background-color: #ffffff;
-  transition: box-shadow 0.3s, transform 0.2s;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.product-card:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
-}
-
-.product-image {
-  max-width: 100%;
-  border-radius: 4px;
-}
-
-.product-name {
-  font-size: 1.2em;
-  margin: 10px 0;
-  font-weight: 600;
-  color: #444;
-}
-
-.product-price {
-  color: #f44336;
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-.product-shipping,
-.product-manufacturer,
-.product-brand,
-.product-condition,
-.product-origin,
-.product-date {
-  font-size: 0.9em;
-  color: #777;
-  margin: 5px 0;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.pagination-button,
-.page-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 15px;
-  margin: 0 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.pagination-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.page-button.active {
-  background-color: #0056b3;
-}
-
-.pagination-button:hover,
-.page-button:hover {
-  background-color: #0056b3;
-}
-
-.page-number {
-  margin: 0 5px;
-}
-
-@media screen and (max-width: 1510px) {
-  .product-grid {
-    display: grid;
-    width: 90%;
-    grid-template-columns: repeat(auto-fill, minmax(30%, 1fr));
-  }
-}
-
-@media screen and (max-width: 850px) {
-  .product-grid {
-    display: grid;
-    width: 90%;
-    grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
-  }
-}
-@media screen and (max-width: 650px) {
-  .product-grid {
-    display: grid;
-    width: 90%;
-    grid-template-columns: repeat(auto-fill, minmax(60%, 1fr));
-  }
+.v-card:hover {
+  transform: translateY(-5px);
 }
 </style>

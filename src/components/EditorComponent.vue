@@ -1,8 +1,6 @@
 <template>
   <v-container>
     <v-card class="pa-4">
-      <v-card-title>블로그 포스트 작성</v-card-title>
-
       <!-- 제목 입력 -->
       <v-text-field
         v-model="title"
@@ -111,6 +109,31 @@
         </div>
       </div>
 
+      <!-- 동적 추가필드 영역 -->
+      <template v-if="props.fields && props.fields.length">
+        <div v-for="field in props.fields" :key="field.name" class="mb-4">
+          <!-- 텍스트 필드 -->
+          <v-text-field
+            v-if="field.type === 'text'"
+            v-model="formValues[field.name]"
+            :label="field.label"
+            :rules="field.rules"
+            variant="outlined"
+          ></v-text-field>
+
+          <!-- 셀렉트 필드 -->
+          <v-select
+            v-else-if="field.type === 'select'"
+            v-model="formValues[field.name]"
+            :items="field.items"
+            :label="field.label"
+            :rules="field.rules"
+            :multiple="field.multiple"
+            variant="outlined"
+            chips
+          ></v-select>
+        </div>
+      </template>
       <!-- 저장 버튼 -->
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -139,15 +162,26 @@ import Underline from "@tiptap/extension-underline";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { useSecureApi } from "../composables/useSecureApi";
+import { reactive } from "vue";
 
 // 상태 관리
 const title = ref("");
 const imageFile = ref<File | null>(null);
 const uploading = ref(false);
 const fileURLs = ref<string[]>([]);
+const formValues = reactive<Record<string, any>>({});
 
 const props = defineProps<{
   URL: string;
+  fields?: {
+    name: string;
+    label: string;
+    type: string;
+    rules?: any[];
+    items?: any[];
+    contentsTag?: string[];
+    multiple?: boolean;
+  }[];
 }>();
 
 // Tiptap 에디터 설정
@@ -177,7 +211,6 @@ const uploadImage = async () => {
     if (!imageFile.value || !editor.value) return;
 
     uploading.value = true;
-
     // 1. 백엔드에서 presigned URL 요청
     const response = await axios.get(
       `${import.meta.env.VITE_API_BASE_URL}/api/images/presigned-url`,
@@ -191,10 +224,6 @@ const uploadImage = async () => {
 
     const presignedUrl = response.data.presignedUrl;
     const imageUrl: string = response.data.imageUrl;
-    console.log("유알엘");
-    console.log(presignedUrl);
-    console.log("유알엘2");
-    console.log(imageUrl);
 
     // axios인터셉터때문에 presignedUrl PUT 요청은 레거시 fetch방식으로
     await fetch(presignedUrl, {
@@ -230,6 +259,7 @@ const savePost = async () => {
       title: title.value,
       content: editor.value.getHTML(),
       fileURLs: fileURLs.value,
+      ...formValues, // 동적 필드 값 포함
     };
 
     const response = await api.secureJWTPost(
@@ -241,7 +271,6 @@ const savePost = async () => {
     alert("포스트가 저장되었습니다!");
   } catch (error) {
     console.error("포스트 저장 중 오류 발생:", error);
-    alert("포스트 저장에 실패했습니다.");
   }
 };
 

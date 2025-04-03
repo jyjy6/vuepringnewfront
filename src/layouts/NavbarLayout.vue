@@ -34,6 +34,9 @@
       <v-btn variant="outlined" @click="$router.push('/p4p')" color="error"
         >SUBSCRIBE</v-btn
       >
+      <v-btn variant="outlined" @click="$router.push('/cart')" color="primary"
+        >장바구니</v-btn
+      >
       <v-btn
         v-if="!loginStore.isLogin"
         variant="outlined"
@@ -202,7 +205,7 @@ const handleNavigation = (item) => {
 };
 
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 50;
+  isScrolled.value = window.scrollY > 250;
 };
 
 onMounted(() => {

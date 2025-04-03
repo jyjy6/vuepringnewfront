@@ -45,6 +45,8 @@ export const useSecureApi = () => {
   // 보안 POST 요청
   const securePost = async (url: string, data: any) => {
     const token = await fetchCsrfToken();
+    console.log("securePost쿠키확인");
+    console.log(document.cookie);
 
     console.log("마지막토큰:" + token);
     return axios.post(url, data, {

@@ -40,10 +40,12 @@ export interface ProductRequest {
 }
 
 export interface StoreCart {
+  title: string;
   size: string;
   quantity: number;
   price: number;
-  orderUser: string;
+  username: string;
   totalPrice: number;
   color: string;
+  img: string;
 }
