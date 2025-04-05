@@ -50,7 +50,7 @@
               <v-card-text>
                 <v-row align="center" class="mx-0 mb-2">
                   <div class="text-h6 font-weight-bold red--text">
-                    {{ item.price }} 원
+                    {{ Intl.NumberFormat().format(item.price) }} 원
                   </div>
                 </v-row>
 

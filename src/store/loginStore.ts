@@ -77,6 +77,7 @@ export const useLoginStore = defineStore("login", () => {
       // 2. 로컬 스토리지 정리
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("sendingForm");
 
       // 3. 상태 업데이트
       user.value = null;

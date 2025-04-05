@@ -83,6 +83,14 @@ const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "adminhomevideoinput" */ "../pages/admin/homevideoinput.vue"
           ),
       },
+      {
+        path: "allorders",
+        name: "AdminAllOrders",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminallorders" */ "../pages/admin/allorders.vue"
+          ),
+      },
     ],
   },
 

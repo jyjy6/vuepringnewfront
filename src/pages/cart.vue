@@ -185,9 +185,17 @@ const decrementQuantity = (item: Cart) => {
 
 // 아이템 삭제
 const removeItem = (index: number) => {
+  console.log(cartItems.value[index]);
+  const response = api.secureDelete(
+    `${import.meta.env.VITE_API_BASE_URL}/api/cart/delete?id=${
+      cartItems.value[index].id
+    }`
+  );
+  alert("장바구니에서 삭제됐습니다.");
   const updatedCart = cartItems.value.filter((item, i) => i !== index);
   cartStore.cartData = updatedCart;
   localStorage.setItem("sendingForm", JSON.stringify(updatedCart));
+  console.log(updatedCart);
 };
 
 // 총 가격 계산

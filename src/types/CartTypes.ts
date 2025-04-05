@@ -1,4 +1,5 @@
 export interface Cart {
+  id?: number;
   size: string;
   img: string;
   title: string;
