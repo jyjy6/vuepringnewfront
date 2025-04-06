@@ -21,6 +21,7 @@
         <v-btn type="submit" block color="primary" class="mt-4">Login</v-btn>
       </v-form>
       <v-divider class="my-4" />
+
       <v-btn @click="handleGoogleLogin" class="google-login-btn">
         Google로 로그인
       </v-btn>
@@ -55,20 +56,9 @@ const navigateToRegister = () => {
 
 // 구글 로그인 버튼 클릭 시 실행되는 함수
 async function handleGoogleLogin() {
-  try {
-    const response = await fetch("/api/auth/google");
-    //위의 api요청 -> api/google-callback.ts를거쳐서 -> 홈으로 리다이렉팅됨.
-    const data = await response.json(); // JSON 응답 파싱
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      console.error("Google 로그인 URL이 올바르지 않습니다.", data);
-      // 에러 처리
-    }
-  } catch (error) {
-    console.error("Google 로그인 오류:", error);
-    // 에러 처리
-  }
+  window.location.href = `${
+    import.meta.env.VITE_API_BASE_URL
+  }/oauth2/authorization/google`;
 }
 </script>
 
@@ -85,5 +75,29 @@ async function handleGoogleLogin() {
 }
 .v-card {
   text-align: center;
+}
+.google-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: white;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  color: #3c4043;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.google-login-btn:hover {
+  background-color: #f1f3f4;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
 }
 </style>

@@ -121,6 +121,14 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "order" */ "../pages/order.vue"),
   },
+  {
+    path: "/auth/google-callback",
+    name: "Google-Callback",
+    component: () =>
+      import(
+        /* webpackChunkName: "google-callback" */ "../pages/auth/google-callback.vue"
+      ),
+  },
 ];
 
 const router = createRouter({
