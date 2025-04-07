@@ -9,4 +9,7 @@ export interface UserInfo {
   updatedAt?: string;
   profileImage?: string;
   role: string;
+  country?: string;
+  mainAddress?: string;
+  subAddress?: string;
 }

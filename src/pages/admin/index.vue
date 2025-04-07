@@ -18,7 +18,7 @@
 const links = [
   { text: "복서 데이터 입력하는곳임", path: "/admin/boxerinput" },
   { text: "뉴스 입력하는곳임", path: "/admin/newswrite" },
-  // { text: "P4P 입력하는곳", path: "/admin/p4pinsert" },
+  { text: "모든 주문 현황", path: "/admin/allorders" },
   { text: "홈 비디오 정보 입력하는곳", path: "/admin/homevideoinput" },
   { text: "샵 아이템 입력하는곳", path: "/admin/shopinput" },
 ];

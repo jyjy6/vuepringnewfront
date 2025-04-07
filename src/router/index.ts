@@ -83,6 +83,14 @@ const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "adminhomevideoinput" */ "../pages/admin/homevideoinput.vue"
           ),
       },
+      {
+        path: "allorders",
+        name: "AdminAllOrders",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminallorders" */ "../pages/admin/allorders.vue"
+          ),
+      },
     ],
   },
 
@@ -112,6 +120,30 @@ const routes: Array<RouteRecordRaw> = [
     name: "Order",
     component: () =>
       import(/* webpackChunkName: "order" */ "../pages/order.vue"),
+  },
+  {
+    path: "/auth/google-callback",
+    name: "Google-Callback",
+    component: () =>
+      import(
+        /* webpackChunkName: "google-callback" */ "../pages/auth/google-callback.vue"
+      ),
+  },
+  {
+    path: "/mypage",
+    name: "MyPage",
+    component: () =>
+      import(/* webpackChunkName: "admin" */ "../pages/mypage/index.vue"),
+    children: [
+      {
+        path: "modify", // '/mypage/modify'로 접근 가능
+        name: "MyPageModify",
+        component: () =>
+          import(
+            /* webpackChunkName: "mypagemodify" */ "../pages/mypage/modify.vue"
+          ),
+      },
+    ],
   },
 ];
 

@@ -288,6 +288,10 @@
                     block
                     variant="flat"
                     prepend-icon="mdi-credit-card"
+                    @click="
+                      directBuy = true;
+                      saveSendingForm();
+                    "
                     >구매하기</v-btn
                   >
                 </v-col>
@@ -503,6 +507,7 @@ import { useSecureApi } from "../composables/useSecureApi";
 import axios from "axios";
 import { nextTick } from "vue";
 import { StoreCart } from "../types/ShopTypes";
+import { watch } from "vue";
 
 // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ남은시간 계산 로직ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 const timeLeft = ref(""); // 카운트다운 타이머를 저장할 ref
@@ -602,6 +607,8 @@ const test = () => {
   console.log(sendingForm.value);
 };
 
+const directBuy = ref(false);
+
 onMounted(() => {
   window.addEventListener("keydown", handleKeydown); // 키보드 이벤트 리스너 등록
 });
@@ -694,6 +701,14 @@ function decrementQuantity(item: StoreCart) {
 const api = useSecureApi();
 
 const saveSendingForm = async () => {
+  if (sendingForm.value.length <= 0) {
+    if (confirm("뭐 옵션선택 안하셨는데 장바구니 가실래요?")) {
+      return router.push("/cart");
+    } else {
+      directBuy.value = false;
+      return;
+    }
+  }
   // 기존의 장바구니 데이터를 가져옵니다.
   const existingCartDataString = localStorage.getItem("sendingForm");
   // 기존 데이터가 null인 경우 빈 배열로 초기화
@@ -745,6 +760,11 @@ const saveSendingForm = async () => {
         `${import.meta.env.VITE_API_BASE_URL}/api/cart/insert`,
         existingCartData
       );
+      if (directBuy.value) {
+        sendingForm.value = [];
+        return router.push("/order");
+      }
+
       alert("장바구니에 물품이 담겼습니다!");
       console.log("성공적으로 전송되었습니다:", response.data);
     } catch (error) {

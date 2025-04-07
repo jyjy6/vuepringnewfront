@@ -3,6 +3,7 @@
     <v-form v-model="valid" ref="registerForm">
       <div class="d-flex align-center">
         <v-text-field
+          v-if="!props.isPut"
           v-model="form.username"
           label="아이디"
           :rules="[(v) => !!v || '아이디는 필수입니다']"
@@ -30,14 +31,13 @@
           v-model="form.displayName"
           label="닉네임"
           required
-          :disabled="isNameDuplicateChecked"
           :hint="nameHint"
           :error-messages="nameError"
           class="mr-2"
         />
         <v-btn
-          :disabled="!form.displayName || isNameDuplicateChecked"
           @click="checkNameDuplicate"
+          :disabled="isNameDuplicateChecked"
           color="info"
           :loading="checkingName"
           size="small"
@@ -79,35 +79,41 @@
 
       <v-text-field v-model="form.phone" label="전화번호" />
 
-      <!-- <v-text-field v-model="form.address.country" label="국가" />
+      <v-text-field v-model="form.country" label="국가" />
 
       <v-text-field
-        v-model="form.address.mainAddress"
+        v-model="form.mainAddress"
         label="주소"
         readonly
         @click="openKakaoAddressSearch"
       />
-      <v-text-field v-model="form.address.subAddress" label="상세주소" />
+      <v-text-field v-model="form.subAddress" label="상세주소" />
 
-      <v-text-field
-        v-model="form.profileImage"
-        label="프로필 이미지를 업로드해주세요!"
-        readonly
-      /> -->
-      <p>현재 프로필이미지</p>
+      <h3>프로필 이미지 업로드</h3>
+      <input
+        type="file"
+        id="file"
+        @change="handleFileUpload($event)"
+        accept="image/*"
+        style="margin-bottom: 20px"
+      />
+      <div v-if="props.isPut">
+        <p>현재 프로필이미지</p>
+        <v-img
+          :src="props.formData?.profileImage"
+          alt="업로드된 이미지"
+          max-width="300"
+          class="preview"
+          style="margin-top: 0"
+        />
+      </div>
+      <p>NEW 프로필이미지</p>
       <v-img
-        :src="props.formData?.profileImage"
+        :src="form.profileImage"
         alt="업로드된 이미지"
         max-width="300"
         class="preview"
         style="margin-top: 0"
-      />
-
-      <FileUploadComponent
-        fieldName="profileImage"
-        @updateURL="updateURL"
-        style="margin-top: 10px"
-        ref="fileUploadRef"
       />
 
       <v-checkbox
@@ -147,48 +153,61 @@ import { useRouter } from "vue-router";
 import { useSecureApi } from "../composables/useSecureApi";
 import { useLoginStore } from "../store/loginStore";
 import { UserInfo } from "../types/UserInfoTypes";
+import { useImageUpload } from "../composables/useImageUpload";
 
 const props = defineProps<{
   //수정시에 들어오는 기존 폼의 데이타
   apiURL: string;
   formData?: Partial<UserInfo>;
-  fields: UserInfo;
   isPut?: boolean;
 }>();
 
 const valid = ref(false);
 const passwordConfirm = ref("");
 const termsAgreed = ref(false);
-const form = ref<UserInfo>({
+const form = ref<Partial<UserInfo>>({
   username: "",
   password: "",
   email: "",
   displayName: "",
   phone: "",
-  createdAt: "",
   updatedAt: "",
-  role: "",
+  profileImage: "",
+  country: "",
+  mainAddress: "",
+  subAddress: "",
 });
 
-onMounted(() => {
-  if (props.formData) {
-    // @ts-ignore
+const { handleFileUpload, singleImgUrl } = useImageUpload();
+
+watch(singleImgUrl, (newUrl) => {
+  form.value.profileImage = newUrl;
+});
+
+watch(
+  () => props.formData,
+  () => {
     form.value = { ...props.formData };
     //폼에는 props.formData의 딥카피본으로 업데이트. -> 그냥 form.value=props.fromData해버리면
     // 새로운 프로필이미지를 업로드할 시 v-img의 프로필 이미지(기존 프로필이미지)까지 변경되어버리기때문에.
-
-    if (props.isPut) {
-      isUsernameDuplicateChecked.value = true;
-      if (props.formData.displayName === form.value.displayName) {
-        isNameDuplicateChecked.value = true;
-      }
+  }
+);
+onMounted(() => {
+  console.log(props.isPut);
+  console.log(props.formData);
+  if (props.isPut) {
+    isUsernameDuplicateChecked.value = true;
+    if (props.formData?.displayName === form.value.displayName) {
+      isNameDuplicateChecked.value = true;
     }
   }
   if (props.isPut) {
     termsAgreed.value = true;
     valid.value = true;
+    form.value.updatedAt = new Date().toLocaleDateString();
   }
 });
+
 // 중복 체크 상태 관리
 const isUsernameDuplicateChecked = ref(false);
 const isNameDuplicateChecked = ref(false);
@@ -318,21 +337,17 @@ const submitForm = async () => {
     return;
   }
 
-  //이미지 파일주소를 S3의 정식 image/ 폴더로 옮기는 작업
-  // if (fileUploadRef.value != null) {
-  //   console.log("파일업로드밸류 널아님");
-  //   console.log(fileUploadRef.value);
-  //   await fileUploadRef.value?.confirmFile();
-  // }
-
   if (props.isPut) {
     form.value.username = props.formData?.username as string;
     try {
+      console.log("풋요청발동");
+      console.log(form.value);
       const response = await api.securePut(
-        `${import.meta.env.VITE_API_BASE_URL}` + props.apiURL,
+        "http://localhost:8080/api/members/modify",
         form.value
       );
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify(response.data));
+
       loginStore.loadUserFromLocalStorage();
       router.push("/");
       alert("회원수정이 완료되었습니다!");
@@ -356,22 +371,21 @@ const submitForm = async () => {
 };
 
 //카카오 주소ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-
-// const openKakaoAddressSearch = () => {
-//   //@ts-ignore
-//   new window.daum.Postcode({
-//     oncomplete: (data: { roadAddress: string }) => {
-//       form.value.address.mainAddress = data.roadAddress; // 도로명 주소 입력
-//     },
-//   }).open();
-// };
-// // 카카오 API 스크립트 로드
-// onMounted(() => {
-//   const script = document.createElement("script");
-//   script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
-//   script.onload = () => console.log("카카오 주소 API 로드 완료");
-//   document.head.appendChild(script);
-// });
+const openKakaoAddressSearch = () => {
+  //@ts-ignore
+  new window.daum.Postcode({
+    oncomplete: (data: { roadAddress: string }) => {
+      form.value.mainAddress = data.roadAddress; // 도로명 주소 입력
+    },
+  }).open();
+};
+// 카카오 API 스크립트 로드
+onMounted(() => {
+  const script = document.createElement("script");
+  script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+  script.onload = () => console.log("카카오 주소 API 로드 완료");
+  document.head.appendChild(script);
+});
 </script>
 <style scoped>
 .preview {

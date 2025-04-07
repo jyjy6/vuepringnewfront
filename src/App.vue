@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app style="margin-bottom: 200px">
     <NavbarLayout />
     <v-main>
       <router-view></router-view>
