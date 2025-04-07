@@ -163,6 +163,7 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { useSecureApi } from "../composables/useSecureApi";
 import { reactive } from "vue";
+import { useLoginStore } from "../store/loginStore";
 
 // 상태 관리
 const title = ref("");
@@ -204,7 +205,7 @@ const editor = useEditor({
 });
 
 const api = useSecureApi();
-
+const loginStore = useLoginStore();
 // S3 이미지 업로드 함수
 const uploadImage = async () => {
   try {
@@ -217,7 +218,7 @@ const uploadImage = async () => {
       {
         params: {
           filename: imageFile.value.name,
-          role: "USER",
+          role: loginStore.getUser?.role || "USER",
         },
       }
     );

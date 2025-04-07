@@ -44,13 +44,118 @@
         color="info"
         >로그인</v-btn
       >
-      <v-btn
-        v-else
-        variant="outlined"
-        @click="loginStore.logout()"
-        color="warning"
-        >로그아웃</v-btn
-      >
+      <div v-else class="d-flex justify-center align-center ga-1">
+        <!-- 사용자 정보 팝업 -->
+        <v-menu
+          v-model="menu"
+          :close-on-content-click="false"
+          location="bottom"
+          transition="scale-transition"
+          offset="10"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn variant="outlined" v-bind="props">
+              <v-icon>mdi-account</v-icon>내정보
+            </v-btn>
+          </template>
+
+          <v-card min-width="300" max-width="320">
+            <v-card-text class="pb-0">
+              <div class="d-flex flex-column align-center mb-3">
+                <v-avatar size="80" class="mb-2">
+                  <v-img
+                    :src="
+                      loginStore.user.profileImage ||
+                      'https://cdn.vuetifyjs.com/images/john.png'
+                    "
+                    alt="프로필"
+                  ></v-img>
+                </v-avatar>
+                <div class="text-h6">{{ loginStore.user.displayName }}</div>
+                <div class="text-subtitle-2 text-grey">
+                  {{ loginStore.user.email }}
+                </div>
+              </div>
+
+              <v-divider></v-divider>
+
+              <v-list density="compact" class="py-0">
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon size="small" class="mr-2">mdi-account</v-icon>
+                  </template>
+                  <v-list-item-title class="text-body-2">{{
+                    loginStore.user.username
+                  }}</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item v-if="loginStore.user.phone">
+                  <template v-slot:prepend>
+                    <v-icon size="small" class="mr-2">mdi-phone</v-icon>
+                  </template>
+                  <v-list-item-title class="text-body-2">{{
+                    loginStore.user.phone
+                  }}</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon size="small" class="mr-2"
+                      >mdi-shield-account</v-icon
+                    >
+                  </template>
+                  <v-list-item-title class="text-body-2">
+                    <v-chip
+                      size="x-small"
+                      :color="
+                        loginStore.user.role === 'ADMIN' ? 'error' : 'primary'
+                      "
+                      text-color="white"
+                    >
+                      {{
+                        loginStore.user.role === "ADMIN"
+                          ? "관리자"
+                          : "일반사용자"
+                      }}
+                    </v-chip>
+                  </v-list-item-title>
+                </v-list-item>
+
+                <v-list-item v-if="loginStore.user.createdAt">
+                  <template v-slot:prepend>
+                    <v-icon size="small" class="mr-2">mdi-calendar</v-icon>
+                  </template>
+                  <v-list-item-title class="text-body-2">
+                    가입일:
+                    {{
+                      formatDate(loginStore.user.createdAt)
+                    }}</v-list-item-title
+                  >
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <router-link to="/mypage/modify">
+                <v-btn
+                  @click="menu = false"
+                  size="small"
+                  variant="plain"
+                  color:primary
+                  >정보수정</v-btn
+                >
+              </router-link>
+              <v-btn size="small" variant="text" @click="menu = false"
+                >닫기</v-btn
+              >
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+        <v-btn variant="outlined" @click="loginStore.logout()" color="warning"
+          >로그아웃</v-btn
+        >
+      </div>
     </div>
   </v-app-bar>
 
@@ -185,6 +290,19 @@ const formatDivision = (division) => {
   return division.toLowerCase().replace(/\s+/g, "");
 };
 
+const menu = ref(false);
+
+// 날짜 포맷팅 함수
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 const menuItems = [
   { title: "NEWS", route: "/news" },
   { title: "P4P RANKINGS", route: "/p4p" },
@@ -269,5 +387,8 @@ onUnmounted(() => {
 
 .division-chip {
   width: 100%;
+}
+.v-list-item-subtitle {
+  margin-top: 4px;
 }
 </style>

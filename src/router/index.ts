@@ -129,6 +129,22 @@ const routes: Array<RouteRecordRaw> = [
         /* webpackChunkName: "google-callback" */ "../pages/auth/google-callback.vue"
       ),
   },
+  {
+    path: "/mypage",
+    name: "MyPage",
+    component: () =>
+      import(/* webpackChunkName: "admin" */ "../pages/mypage/index.vue"),
+    children: [
+      {
+        path: "modify", // '/mypage/modify'로 접근 가능
+        name: "MyPageModify",
+        component: () =>
+          import(
+            /* webpackChunkName: "mypagemodify" */ "../pages/mypage/modify.vue"
+          ),
+      },
+    ],
+  },
 ];
 
 const router = createRouter({

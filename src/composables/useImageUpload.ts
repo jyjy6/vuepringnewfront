@@ -1,25 +1,25 @@
 import axios from "axios";
 import { ref } from "vue";
+import { useLoginStore } from "../store/loginStore";
 
 export function useImageUpload() {
   const singleImgUrl = ref("");
   //개별이미지 업로드 용 ref
 
-  const handleFileUpload = async (event: Event, form: string[]) => {
+  const handleFileUpload = async (event: Event, form?: string[]) => {
     const input = event.target as HTMLInputElement;
+    const loginStore = useLoginStore();
+    const userRole = loginStore.getUser?.role || "USER";
     if (input.files && input.files.length > 0) {
       const files = Array.from(input.files);
 
       for (const file of files) {
         const fileName = file.name;
-        // const role = store.state.user.role; 나중에 role추가하셈 로그인기능완성되면
-
         try {
           const response = await axios.get(
-            // 여기도 role하드코딩돼있는거 추가하기
             `${
               import.meta.env.VITE_API_BASE_URL
-            }/api/images/presigned-url?filename=${fileName}&role=admin`
+            }/api/images/presigned-url?filename=${fileName}&role=${userRole}`
           );
           const presignedUrl = response.data.presignedUrl;
           const imageUrl: string = response.data.imageUrl;
@@ -31,7 +31,7 @@ export function useImageUpload() {
           });
 
           if (uploadResult.status === 200) {
-            form.push(imageUrl);
+            form?.push(imageUrl);
             singleImgUrl.value = imageUrl;
             console.log("File uploaded successfully:", imageUrl);
           } else {
