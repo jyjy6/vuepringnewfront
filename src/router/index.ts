@@ -91,6 +91,14 @@ const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "adminallorders" */ "../pages/admin/allorders.vue"
           ),
       },
+      {
+        path: "allchat",
+        name: "AdminAllChat",
+        component: () =>
+          import(
+            /* webpackChunkName: "adminallchat" */ "../pages/admin/allchat.vue"
+          ),
+      },
     ],
   },
 
@@ -144,6 +152,12 @@ const routes: Array<RouteRecordRaw> = [
           ),
       },
     ],
+  },
+  {
+    path: "/chat",
+    name: "Chat",
+    component: () =>
+      import(/* webpackChunkName: "chat" */ "../pages/chat/index.vue"),
   },
 ];
 

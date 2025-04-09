@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h3>마이페이지임</h3>
+  <h3 class="text-center">마이페이지임</h3>
   <router-view></router-view>
 </template>
 

@@ -89,14 +89,6 @@
       />
       <v-text-field v-model="form.subAddress" label="상세주소" />
 
-      <h3>프로필 이미지 업로드</h3>
-      <input
-        type="file"
-        id="file"
-        @change="handleFileUpload($event)"
-        accept="image/*"
-        style="margin-bottom: 20px"
-      />
       <div v-if="props.isPut">
         <p>현재 프로필이미지</p>
         <v-img
@@ -107,13 +99,23 @@
           style="margin-top: 0"
         />
       </div>
-      <p>NEW 프로필이미지</p>
-      <v-img
-        :src="form.profileImage"
-        alt="업로드된 이미지"
-        max-width="300"
-        class="preview"
-        style="margin-top: 0"
+      <div v-if="props.formData?.profileImage != form.profileImage">
+        <p>NEW 프로필이미지</p>
+        <v-img
+          :src="form.profileImage"
+          alt="업로드된 이미지"
+          max-width="300"
+          class="preview"
+          style="margin-top: 0"
+        />
+      </div>
+      <h3>프로필 이미지 업로드</h3>
+      <input
+        type="file"
+        id="file"
+        @change="handleFileUpload($event)"
+        accept="image/*"
+        style="margin-bottom: 20px"
       />
 
       <v-checkbox

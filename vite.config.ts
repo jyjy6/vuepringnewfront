@@ -8,5 +8,11 @@ export default defineConfig({
     host: "0.0.0.0", // 모든 네트워크에서 접근 가능하도록 설정
     port: 5173, // 포트 설정
     strictPort: true, // 포트 충돌 방지
+    proxy: {
+      "/socket.io": {
+        target: "http://localhost:9090",
+        ws: true,
+      },
+    },
   },
 });

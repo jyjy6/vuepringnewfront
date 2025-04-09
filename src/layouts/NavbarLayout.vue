@@ -25,15 +25,12 @@
 
     <!-- 버튼들 (오른쪽에 배치) -->
     <div
+      v-if="!isMobile"
       class="d-flex align-center"
       style="flex: 1; justify-content: flex-end; gap: 10px"
     >
-      <v-btn @click="$router.push('/news')" color="secondary" variant="outlined"
-        >언어선택</v-btn
-      >
-      <v-btn variant="outlined" @click="$router.push('/p4p')" color="error"
-        >SUBSCRIBE</v-btn
-      >
+      <v-btn color="secondary" variant="outlined">언어선택</v-btn>
+      <v-btn variant="outlined" color="error">SUBSCRIBE</v-btn>
       <v-btn variant="outlined" @click="$router.push('/cart')" color="primary"
         >장바구니</v-btn
       >
@@ -193,7 +190,7 @@
         </div>
 
         <!-- Mobile Menu Toggle -->
-        <div class="mobile-menu hidden-md-and-up">
+        <div v-if="isMobile">
           <v-btn icon @click.stop="drawer = !drawer" class="menu-toggle">
             <v-icon>mdi-menu</v-icon>
           </v-btn>
@@ -204,13 +201,25 @@
 
   <!-- Mobile Drawer -->
   <v-navigation-drawer
+    v-if="isMobile"
     v-model="drawer"
     app
     temporary
     right
-    class="mobile-drawer"
+    class="mobile-drawer d-flex ma-auto text-center align-center"
   >
     <v-list>
+      <v-list-item class="mobile-nav-item">
+        <v-img
+          src="https://ringmagazine.com/assets/ring-tv-assets/images/logo/logo.svg"
+          alt="Logo"
+          class="cursor-pointer ma-auto"
+          max-width="100"
+          height="100"
+          contain
+          @click="$router.push('/')"
+        />
+      </v-list-item>
       <v-list-item
         v-for="(item, index) in menuItems"
         :key="index"
@@ -218,6 +227,139 @@
         class="mobile-nav-item"
       >
         <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
+
+      <v-list-item>
+        <v-btn color="secondary" variant="outlined">언어선택</v-btn>
+      </v-list-item>
+      <v-list-item>
+        <v-btn variant="outlined" color="error">SUBSCRIBE</v-btn>
+      </v-list-item>
+      <v-list-item>
+        <v-btn variant="outlined" @click="$router.push('/cart')" color="primary"
+          >장바구니</v-btn
+        >
+      </v-list-item>
+      <v-list-item>
+        <v-btn
+          v-if="!loginStore.isLogin"
+          variant="outlined"
+          @click="$router.push('/login')"
+          color="info"
+          >로그인</v-btn
+        >
+        <div v-else class="d-flex justify-center align-center ga-1">
+          <!-- 사용자 정보 팝업 -->
+          <v-menu
+            v-model="menu"
+            :close-on-content-click="false"
+            location="bottom"
+            transition="scale-transition"
+            offset="10"
+          >
+            <template v-slot:activator="{ props }">
+              <v-btn variant="outlined" v-bind="props">
+                <v-icon>mdi-account</v-icon>내정보
+              </v-btn>
+            </template>
+
+            <v-card min-width="300" max-width="320">
+              <v-card-text class="pb-0">
+                <div class="d-flex flex-column align-center mb-3">
+                  <v-avatar size="80" class="mb-2">
+                    <v-img
+                      :src="
+                        loginStore.user.profileImage ||
+                        'https://cdn.vuetifyjs.com/images/john.png'
+                      "
+                      alt="프로필"
+                    ></v-img>
+                  </v-avatar>
+                  <div class="text-h6">{{ loginStore.user.displayName }}</div>
+                  <div class="text-subtitle-2 text-grey">
+                    {{ loginStore.user.email }}
+                  </div>
+                </div>
+
+                <v-divider></v-divider>
+
+                <v-list density="compact" class="py-0">
+                  <v-list-item>
+                    <template v-slot:prepend>
+                      <v-icon size="small" class="mr-2">mdi-account</v-icon>
+                    </template>
+                    <v-list-item-title class="text-body-2">{{
+                      loginStore.user.username
+                    }}</v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item v-if="loginStore.user.phone">
+                    <template v-slot:prepend>
+                      <v-icon size="small" class="mr-2">mdi-phone</v-icon>
+                    </template>
+                    <v-list-item-title class="text-body-2">{{
+                      loginStore.user.phone
+                    }}</v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <template v-slot:prepend>
+                      <v-icon size="small" class="mr-2"
+                        >mdi-shield-account</v-icon
+                      >
+                    </template>
+                    <v-list-item-title class="text-body-2">
+                      <v-chip
+                        size="x-small"
+                        :color="
+                          loginStore.user.role === 'ADMIN' ? 'error' : 'primary'
+                        "
+                        text-color="white"
+                      >
+                        {{
+                          loginStore.user.role === "ADMIN"
+                            ? "관리자"
+                            : "일반사용자"
+                        }}
+                      </v-chip>
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item v-if="loginStore.user.createdAt">
+                    <template v-slot:prepend>
+                      <v-icon size="small" class="mr-2">mdi-calendar</v-icon>
+                    </template>
+                    <v-list-item-title class="text-body-2">
+                      가입일:
+                      {{
+                        formatDate(loginStore.user.createdAt)
+                      }}</v-list-item-title
+                    >
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <router-link to="/mypage/modify">
+                  <v-btn
+                    @click="menu = false"
+                    size="small"
+                    variant="plain"
+                    color:primary
+                    >정보수정</v-btn
+                  >
+                </router-link>
+                <v-btn size="small" variant="text" @click="menu = false"
+                  >닫기</v-btn
+                >
+              </v-card-actions>
+            </v-card>
+          </v-menu>
+          <v-btn variant="outlined" @click="loginStore.logout()" color="warning"
+            >로그아웃</v-btn
+          >
+        </div>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -307,7 +449,7 @@ const menuItems = [
   { title: "NEWS", route: "/news" },
   { title: "P4P RANKINGS", route: "/p4p" },
   { title: "DIVISIONS", route: "modal" },
-  { title: "SCHEDULE", route: "/schedule" },
+  { title: "CHAT", route: "/chat" },
   { title: "ADMIN", route: "/admin" },
   { title: "SHOP", route: "/shop" },
   { title: "CONTACT", route: "/contact" },
@@ -332,6 +474,17 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
+});
+
+const isMobile = ref(false);
+
+const checkViewport = () => {
+  isMobile.value = window.innerWidth <= 960;
+};
+
+onMounted(() => {
+  checkViewport();
+  window.addEventListener("resize", checkViewport);
 });
 </script>
 
@@ -390,5 +543,10 @@ onUnmounted(() => {
 }
 .v-list-item-subtitle {
   margin-top: 4px;
+}
+@media (max-width: 700px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
 </style>

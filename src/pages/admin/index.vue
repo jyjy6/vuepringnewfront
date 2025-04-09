@@ -21,6 +21,7 @@ const links = [
   { text: "모든 주문 현황", path: "/admin/allorders" },
   { text: "홈 비디오 정보 입력하는곳", path: "/admin/homevideoinput" },
   { text: "샵 아이템 입력하는곳", path: "/admin/shopinput" },
+  { text: "상담", path: "/admin/allchat" },
 ];
 </script>
 
