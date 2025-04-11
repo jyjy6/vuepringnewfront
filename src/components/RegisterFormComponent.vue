@@ -318,8 +318,9 @@ const passwordRules = props.isPut
 
 const router = useRouter();
 const api = useSecureApi();
-const fileUploadRef = ref<any>(null);
 
+// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ구시대의 유물 그냥 남겨두ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+const fileUploadRef = ref<any>(null);
 const updateURL = (data: { fieldName: string; url: string }) => {
   console.log("유알엘업데이트됐음");
   if (data.fieldName && data.url) {
@@ -327,6 +328,7 @@ const updateURL = (data: { fieldName: string; url: string }) => {
     console.log(`${data.fieldName} 필드 업데이트: ${data.url}`);
   }
 };
+// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
 const loginStore = useLoginStore();
 const submitForm = async () => {
@@ -351,8 +353,8 @@ const submitForm = async () => {
       localStorage.setItem("user", JSON.stringify(response.data));
 
       loginStore.loadUserFromLocalStorage();
-      router.push("/");
       alert("회원수정이 완료되었습니다!");
+      window.location.reload();
     } catch (error) {
       console.error("회원수정 실패:", error);
       alert("회원수정에 실패했습니다.");

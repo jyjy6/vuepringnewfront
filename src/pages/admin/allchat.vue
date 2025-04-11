@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title class="d-flex align-center justify-space-between">
+      <v-card-title class="d-flex align-center justify-center">
         <div>
           <h2>1:1 상담 관리</h2>
           <p class="text-subtitle-1">모든 상담 내역을 관리합니다</p>
@@ -13,7 +13,7 @@
 
       <v-card-text>
         <v-row>
-          <v-col cols="12" sm="6" md="4">
+          <v-col cols="12" sm="6" md="4" style="margin: 0 auto">
             <v-select
               v-model="selectedStatus"
               :items="statusOptions"
@@ -148,7 +148,7 @@ const headers = [
   { title: "최근 메시지", key: "message" },
   { title: "시간", key: "timestamp" },
   { title: "상태", key: "status" },
-  { title: "작업", key: "actions", sortable: false },
+  { title: "상담시작 / 상태변경", key: "actions", sortable: false },
 ];
 
 // 채팅방 선택 상태
@@ -278,7 +278,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.v-data-table ::v-deep .v-data-table__wrapper {
+.v-data-table :deep(.v-data-table__wrapper) {
   min-height: 500px;
 }
 </style>

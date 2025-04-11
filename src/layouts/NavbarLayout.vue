@@ -133,16 +133,18 @@
             </v-card-text>
 
             <v-card-actions>
+              <v-btn @click="menu = false; router.push('/mypage')">마이페이지</v-btn>
               <v-spacer></v-spacer>
-              <router-link to="/mypage/modify">
-                <v-btn
-                  @click="menu = false"
-                  size="small"
-                  variant="plain"
-                  color:primary
-                  >정보수정</v-btn
-                >
-              </router-link>
+              <v-btn
+                @click="
+                  menu = false;
+                  router.push('/mypage/modify');
+                "
+                size="small"
+                variant="plain"
+                color:primary
+                >정보수정</v-btn
+              >
               <v-btn size="small" variant="text" @click="menu = false"
                 >닫기</v-btn
               >

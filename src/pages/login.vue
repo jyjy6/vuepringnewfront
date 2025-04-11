@@ -56,9 +56,7 @@ const navigateToRegister = () => {
 
 // 구글 로그인 버튼 클릭 시 실행되는 함수
 async function handleGoogleLogin() {
-  window.location.href = `${
-    import.meta.env.VITE_API_BASE_URL
-  }/oauth2/authorization/google`;
+  window.location.href = `http://localhost:8080/oauth2/authorization/google`;
 }
 </script>
 

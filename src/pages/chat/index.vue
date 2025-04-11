@@ -18,11 +18,12 @@ const enterChat = () => {
 <template>
   <div class="app">
     <div v-if="!showChat" class="login-container">
-      <h1>채팅 시작하기</h1>
+      <h1>문의하기</h1>
       <div class="form-group">
         <label for="username">사용자 이름:</label>
         <input id="username" v-model="username" />
       </div>
+      <!-- 이건 display:none같은거 해두는데 개발상태라 그냥 확인용으로 냅둠 -->
       <div class="form-group">
         <label for="room">방 ID:</label>
         <input id="room" v-model="room" />

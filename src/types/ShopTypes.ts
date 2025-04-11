@@ -1,4 +1,5 @@
 // 인터페이스 정의
+// Spring에선 Sales테이블
 export interface ShopOption {
   size: string;
   color: string;
@@ -49,4 +50,3 @@ export interface StoreCart {
   color: string;
   img: string;
 }
-

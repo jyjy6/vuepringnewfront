@@ -83,6 +83,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import axios from "axios";
+import { useSecureApi } from "../../composables/useSecureApi";
 
 // Types
 interface Order {
@@ -155,7 +156,7 @@ onMounted(async () => {
   await fetchOrders();
 });
 
-// Methods
+// 페이지네이션 안돼있음 -> 다른 페이지네이션 되어있는 shop.vue chat.vue등과 비교하려고 걍 남겨둠
 const fetchOrders = async (): Promise<void> => {
   try {
     loading.value = true;
@@ -225,13 +226,15 @@ const getStatusColor = (status: string): string => {
   }
 };
 
+const api = useSecureApi();
 const updateOrderStatus = async (
   orderId: number,
   statusCode: number
 ): Promise<void> => {
   try {
-    await axios.post(
-      `/api/orders/${orderId}/update-status?status=${statusCode}`
+    await api.securePost(
+      `/api/orders/${orderId}/update-status?status=${statusCode}`,
+      {}
     );
 
     // 성공 시 주문 목록을 다시 불러옴
