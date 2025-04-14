@@ -43,124 +43,169 @@
       </div>
     </transition>
   </div>
+  <v-btn
+    v-if="loginStore.getUser?.role === 'ADMIN'"
+    color="primary"
+    outlined
+    @click="p4pModalOpen = true"
+    style="display: flex; justify-self: center"
+    >P4P수정</v-btn
+  >
   <BoxerDetailModalComponent
     :selectedBoxer="selectedBoxer"
     :boxers="boxerDataStore.boxers"
   />
   <!-- ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ나중에 USER빼셈 ↓ -->
-  <form @submit.prevent="addToP4PArray">
-    <!-- 체급 선택 -->
-    <select v-model="weightClass">
-      <option disabled value="">체급을 선택하세요</option>
-      <option
-        v-for="division in DivisionData"
-        :key="division.id"
-        :value="division.routerlink"
-      >
-        {{ division.divisions }}
-      </option>
-    </select>
 
-    <!-- 복서 선택 -->
-
-    <div>
-      <div class="search-input-box" v-if="boxers != null && boxers.length > 0">
-        <input
-          type="text"
-          v-model="searchTerm"
-          placeholder="복서 이름으로 검색"
-          class="search-input"
-          id="search-input"
-        />
-        <label for="search-input" class="search-label"
-          ><font-awesome-icon icon="search"
-        /></label>
-      </div>
-      <div v-if="p4pStore.loading">Loading...</div>
-      <div v-else class="boxer-list">
-        <div
-          v-for="boxer in filteredBoxers"
-          :key="boxer.id"
-          class="boxer-profile select-boxer-profile"
-          @click="
-            selectedBoxerId = boxer.id;
-            selectedBoxerName = boxer.name;
-          "
-        >
-          <img
-            :src="boxer.boxerImg"
-            alt="boxer Image"
-            class="select-boxer-image"
-          />
-          <div class="boxer-info">
-            <h3 class="boxer-name">
-              <span
-                v-if="boxer.ranking === 1"
-                style="color: gold; font-size: 1.5rem"
-              >
-                챔피언
-              </span>
-              <span v-else>{{ boxer.ranking + "위 " }}</span>
-              {{ boxer.name }}
-            </h3>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 선택한 복서의 P4P 정보 입력 폼 -->
-    <div v-if="selectedBoxerId" class="select-form">
-      <h4>선택한 복서 ID: {{ selectedBoxerId }}</h4>
-      <div class="form-group">
-        <label for="p4pRanking">P4P Ranking</label>
-        <input
-          type="number"
-          id="p4pRanking"
-          v-model="form.p4pRanking"
-          class="form-control"
-          required
-        />
-      </div>
-      <div class="form-group" style="display: none">
-        <label for="p4pScore">P4P Score</label>
-        <input
-          type="number"
-          id="p4pScore"
-          v-model="form.p4pScore"
-          class="form-control"
-          required
-        />
-      </div>
-      <button type="submit" class="btn btn-primary">Add to P4P List</button>
-    </div>
-
-    <div class="selected-boxers-list">
-      <div
-        v-for="(box, index) in p4pFormArray"
-        :key="box.boxerId as number"
-        class="selected-boxer-card"
-      >
-        <div class="boxer-info">
-          <p style="font-size: 1.5rem">
-            변경 P4P 랭킹:<strong> {{ box.p4pRanking }}위</strong>
-          </p>
-          <p><strong>복서 이름:</strong> {{ box.boxerName }}</p>
-        </div>
-        <button class="remove-boxer-btn" @click="removeBoxer(index)">
-          삭제
-        </button>
-      </div>
-    </div>
-  </form>
-  <!-- P4P 배열 전송 버튼 -->
-  <button
-    @click="insertP4P"
-    class="btn btn-success submit-button"
-    v-if="p4pFormArray.length > 0"
+  <v-dialog
+    v-model="p4pModalOpen"
+    max-width="800"
+    scrollable
+    persistent
+    content-class="custom-dialog"
+    @click:outside="p4pModalOpen = false"
   >
-    Submit All P4P Rankings
-  </button>
+    <v-card class="rounded-lg">
+      <v-form @submit.prevent="addToP4PArray">
+        <v-card-title class="primary white--text">
+          P4P 랭킹 관리
+          <v-spacer></v-spacer>
+          <v-btn icon dark @click="p4pModalOpen = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
 
+        <v-card-text class="pa-6">
+          <!-- 체급 선택 -->
+          <select
+            v-model="weightClass"
+            style="background-color: white; color: black"
+          >
+            <option disabled value="">체급을 선택하세요</option>
+            <option
+              v-for="division in DivisionData"
+              :key="division.id"
+              :value="division.routerlink"
+            >
+              {{ division.divisions }}
+            </option>
+          </select>
+
+          <!-- 복서 검색 및 선택 -->
+          <v-text-field
+            v-model="searchTerm"
+            placeholder="복서 이름 검색"
+            outlined
+            dense
+            prepend-inner-icon="mdi-magnify"
+            class="mb-4"
+            hide-details
+          ></v-text-field>
+
+          <v-subheader class="pl-0">복서를 선택해주세요</v-subheader>
+
+          <v-progress-linear
+            v-if="p4pStore.loading"
+            indeterminate
+            color="primary"
+          ></v-progress-linear>
+
+          <v-list v-else style="cursor: pointer">
+            <v-list-item
+              v-for="boxer in filteredBoxers"
+              :key="boxer.id"
+              @click="
+                selectedBoxerId = boxer.id;
+                selectedBoxerName = boxer.name;
+              "
+              :class="{ 'selected-boxer': selectedBoxerId === boxer.id }"
+            >
+              <div class="d-flex align-center" style="gap: 16px; width: 100%">
+                <!-- 아바타 이미지 -->
+                <v-avatar size="70">
+                  <v-img :src="boxer.boxerImg" alt="Boxer Image"></v-img>
+                </v-avatar>
+
+                <!-- 텍스트 정보 -->
+                <div>
+                  <div class="d-flex align-center">
+                    <v-chip
+                      v-if="boxer.ranking === 1"
+                      small
+                      color="amber"
+                      class="mr-2"
+                    >
+                      CHAMPION
+                    </v-chip>
+                    <span class="caption text-grey mr-2">
+                      체급 내 {{ boxer.ranking }}위
+                    </span>
+                  </div>
+                  <div class="font-weight-medium">{{ boxer.name }}</div>
+                </div>
+              </div>
+            </v-list-item>
+          </v-list>
+
+          <!-- 선택한 복서 정보 입력 -->
+          <v-expand-transition>
+            <v-card v-if="selectedBoxerId" class="mt-4 pa-4" outlined>
+              <v-card-title class="subtitle-1">
+                선택한 복서: {{ selectedBoxerName }}
+              </v-card-title>
+
+              <v-text-field
+                v-model="form.p4pRanking"
+                label="변경할 P4P 랭킹"
+                type="number"
+                outlined
+                dense
+                required
+                class="mb-4"
+                hide-details
+              ></v-text-field>
+
+              <v-btn type="submit" color="primary" block depressed>
+                변경 리스트에 추가
+              </v-btn>
+            </v-card>
+          </v-expand-transition>
+
+          <!-- 선택된 복서 목록 -->
+          <v-slide-y-transition group>
+            <v-chip
+              v-for="(box, index) in p4pFormArray"
+              :key="box.boxerId as number"
+              close
+              class="ma-1"
+              color="secondary"
+              text-color="white"
+              @click:close="removeBoxer(index)"
+            >
+              <v-avatar left>
+                <v-icon>mdi-account-box</v-icon>
+              </v-avatar>
+              {{ box.boxerName }} ({{ box.p4pRanking }}위)
+            </v-chip>
+          </v-slide-y-transition>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="justify-end pa-4">
+          <v-btn
+            @click="insertP4P"
+            color="success"
+            :disabled="p4pFormArray.length === 0"
+            depressed
+          >
+            <v-icon left>mdi-content-save</v-icon>
+            전체 저장
+          </v-btn>
+        </v-card-actions>
+      </v-form>
+    </v-card>
+  </v-dialog>
   <div style="height: 500px"></div>
 </template>
 
@@ -168,14 +213,15 @@
 import axios from "axios";
 import { computed, onMounted, ref, watch } from "vue";
 import { useP4PStore } from "../store/p4pStore";
-import DivisionData from "../assets/DivisionData";
 import BoxerDetailModalComponent from "../components/BoxerDetailModalComponent.vue";
 import { useBoxerDataStore } from "../store/boxerDataStore";
-import { nextTick } from "process";
 import { useSecureApi } from "../composables/useSecureApi";
+import DivisionData from "../assets/DivisionData";
+import { useLoginStore } from "../store/loginStore";
 
 const p4pStore = useP4PStore();
 const p4pTop10 = computed(() => p4pStore.p4pData);
+const loginStore = useLoginStore();
 
 const searchTerm = ref("");
 
@@ -314,10 +360,11 @@ const insertP4P = async () => {
   } finally {
     alert("복서 P4P데이터가 전송되었습니다!");
     fetchboxers();
+    window.location.reload();
   }
 };
 
-/* 위 로직은 for문쳐서 하는것 -> 아래의 Promise all로 개선할 수 있음.
+/* 위의 로직은 for문쳐서 하는것 -> 아래의 Promise all로 개선할 수 있음.
 const insertP4P = async () => {
   try {
     const rankingReset = await api.securePost('http://localhost:8080/api/p4p/reset', {}, {
@@ -345,6 +392,7 @@ const insertP4P = async () => {
   }
 };
   */
+const p4pModalOpen = ref(false);
 
 onMounted(() => {
   p4pStore.fetchP4PData();
@@ -424,10 +472,6 @@ button {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
   width: 100%;
-}
-
-.boxer-list {
-  cursor: pointer;
 }
 
 .select-boxer-image,
@@ -601,13 +645,6 @@ input {
   background-color: #2980b9;
 }
 
-.boxer-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 15px;
-}
-
 .select-boxer-profile {
   box-sizing: border-box;
   height: 50px;
@@ -682,30 +719,8 @@ input {
   margin: 10px 0;
 }
 
-/* 선택복서 P4P입력 폼 */
-.select-form {
-  width: 50%;
-  margin: 0 auto;
-}
-
-.submit-button {
-  display: block;
-  margin: 0 auto;
-}
-
-.search-input-box {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-  width: 30%;
-  margin: 0 auto;
-}
-.search-label {
-  font-size: 2rem;
-  margin: 0;
-}
-.search-input {
-  width: 100%;
+.custom-dialog {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
 }
 </style>
