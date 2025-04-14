@@ -89,14 +89,6 @@
       />
       <v-text-field v-model="form.subAddress" label="상세주소" />
 
-      <h3>프로필 이미지 업로드</h3>
-      <input
-        type="file"
-        id="file"
-        @change="handleFileUpload($event)"
-        accept="image/*"
-        style="margin-bottom: 20px"
-      />
       <div v-if="props.isPut">
         <p>현재 프로필이미지</p>
         <v-img
@@ -107,13 +99,23 @@
           style="margin-top: 0"
         />
       </div>
-      <p>NEW 프로필이미지</p>
-      <v-img
-        :src="form.profileImage"
-        alt="업로드된 이미지"
-        max-width="300"
-        class="preview"
-        style="margin-top: 0"
+      <div v-if="props.formData?.profileImage != form.profileImage">
+        <p>NEW 프로필이미지</p>
+        <v-img
+          :src="form.profileImage"
+          alt="업로드된 이미지"
+          max-width="300"
+          class="preview"
+          style="margin-top: 0"
+        />
+      </div>
+      <h3>프로필 이미지 업로드</h3>
+      <input
+        type="file"
+        id="file"
+        @change="handleFileUpload($event)"
+        accept="image/*"
+        style="margin-bottom: 20px"
       />
 
       <v-checkbox
@@ -316,8 +318,9 @@ const passwordRules = props.isPut
 
 const router = useRouter();
 const api = useSecureApi();
-const fileUploadRef = ref<any>(null);
 
+// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ구시대의 유물 그냥 남겨두ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+const fileUploadRef = ref<any>(null);
 const updateURL = (data: { fieldName: string; url: string }) => {
   console.log("유알엘업데이트됐음");
   if (data.fieldName && data.url) {
@@ -325,6 +328,7 @@ const updateURL = (data: { fieldName: string; url: string }) => {
     console.log(`${data.fieldName} 필드 업데이트: ${data.url}`);
   }
 };
+// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
 const loginStore = useLoginStore();
 const submitForm = async () => {
@@ -349,8 +353,8 @@ const submitForm = async () => {
       localStorage.setItem("user", JSON.stringify(response.data));
 
       loginStore.loadUserFromLocalStorage();
-      router.push("/");
       alert("회원수정이 완료되었습니다!");
+      window.location.reload();
     } catch (error) {
       console.error("회원수정 실패:", error);
       alert("회원수정에 실패했습니다.");

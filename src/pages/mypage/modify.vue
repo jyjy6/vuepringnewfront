@@ -1,5 +1,5 @@
 <template>
-  정보수정
+  <h1 class="text-center">회원정보수정</h1>
   <RegisterFormComponent
     :formData="formData"
     apiURL="/api/members/modify"

@@ -77,8 +77,16 @@
                     }}
                   </div>
                 </div>
-                <v-btn icon color="error" variant="text" size="large">
-                  <v-icon>mdi-heart-outline</v-icon>
+                <v-btn
+                  icon
+                  color="error"
+                  variant="text"
+                  size="large"
+                  @click="toggleLike"
+                >
+                  <v-icon>{{
+                    liked ? "mdi-heart" : "mdi-heart-outline"
+                  }}</v-icon>
                 </v-btn>
               </div>
             </div>
@@ -303,17 +311,20 @@
                     variant="flat"
                     block
                     prepend-icon="mdi-message-text"
+                    @click="router.push('/chat')"
                     >문의</v-btn
                   >
                 </v-col>
                 <v-col cols="4">
                   <v-btn
-                    color="grey-lighten-3"
+                    :color="liked ? 'pink' : 'grey-lighten-3'"
                     variant="flat"
                     block
-                    prepend-icon="mdi-heart"
-                    >찜하기</v-btn
+                    :prepend-icon="liked ? 'mdi-heart' : 'mdi-heart-outline'"
+                    @click="toggleLike"
                   >
+                    {{ liked ? "좋아요 취소" : "좋아요" }}
+                  </v-btn>
                 </v-col>
                 <v-col cols="4">
                   <v-btn
@@ -602,9 +613,11 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 };
 
-const test = () => {
-  console.log("센딩폼");
-  console.log(sendingForm.value);
+const test = async () => {
+  const response = await axios.get(
+    `${import.meta.env.VITE_API_BASE_URL}/api/check-connection`
+  );
+  console.log(response.data);
 };
 
 const directBuy = ref(false);
@@ -777,6 +790,43 @@ const saveSendingForm = async () => {
   }
   sendingForm.value = [];
 };
+
+//좋아요 기능
+
+const liked = ref(false);
+const toggleLike = async () => {
+  try {
+    await api.securePost(`${import.meta.env.VITE_API_BASE_URL}/api/likes`, {
+      memberId: loginStore.getUser?.id, // 로그인 유저 ID
+      salesId: route.params.id, // 현재 상품 ID
+    });
+    liked.value = !liked.value;
+  } catch (err) {
+    console.error(err);
+    alert("에러 발생");
+  }
+};
+
+onMounted(async () => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_BASE_URL}/api/likes/member/${
+        loginStore.getUser?.id
+      }`
+    );
+
+    // 받아온 좋아요 리스트에서 salesId들만 추출
+    const likedSalesIds = response.data.map((item: any) => item.id);
+    // 현재 라우트의 id가 그 리스트에 포함되어 있는지 확인
+    if (likedSalesIds.includes(Number(route.params.id))) {
+      liked.value = true;
+    } else {
+      liked.value = false;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
 </script>
 
 <style>
