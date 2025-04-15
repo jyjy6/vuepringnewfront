@@ -16,6 +16,8 @@ import { useSecureApi } from "./composables/useSecureApi";
 const loginStore = useLoginStore();
 const api = useSecureApi();
 onMounted(() => {
+  console.log("환경변수확인");
+  console.log(import.meta.env.VITE_API_BASE_URL);
   loginStore.loadUserFromLocalStorage();
   nextTick(() => {
     console.log(loginStore.user);

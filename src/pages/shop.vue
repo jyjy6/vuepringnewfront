@@ -1,7 +1,6 @@
 <template>
   <v-container>
     <router-view></router-view>
-
     <v-row justify="center" class="mb-6">
       <v-col cols="12">
         <h1 class="text-h4 font-weight-bold text-center primary--text">
