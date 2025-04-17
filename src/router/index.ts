@@ -32,9 +32,8 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/:division",
     name: "Division",
-    component: import(
-      /* webpackChunkName: "division" */ "../pages/division.vue"
-    ),
+    component: () =>
+      import(/* webpackChunkName: "division" */ "../pages/division.vue"),
     props: true, // URL 파라미터를 컴포넌트의 props로 전달
   },
   {
@@ -101,11 +100,10 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
-
   {
     path: "/shop",
     name: "Shop",
-    component: import(/* webpackChunkName: "shop" */ "../pages/shop.vue"),
+    component: () => import(/* webpackChunkName: "shop" */ "../pages/shop.vue"),
     children: [
       {
         path: "detail/:id",

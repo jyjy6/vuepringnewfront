@@ -14,7 +14,9 @@ const refreshAccessToken = async () => {
 
   try {
     // 서버에 요청하여 새로운 액세스 토큰 발급
-    const response = await axios.get(`${baseURL}/refresh-token`);
+    const response = await axios.get(`${baseURL}/api/refresh-token`, {
+      withCredentials: true,
+    });
 
     const { accessToken } = response.data;
     console.log("새로운 액세스 토큰:", accessToken);

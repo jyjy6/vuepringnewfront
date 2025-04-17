@@ -29,8 +29,8 @@
       class="d-flex align-center"
       style="flex: 1; justify-content: flex-end; gap: 10px"
     >
-      <v-btn color="secondary" variant="outlined">언어선택</v-btn>
-      <v-btn variant="outlined" color="error">SUBSCRIBE</v-btn>
+      <!-- <v-btn color="secondary" variant="outlined">언어선택</v-btn>
+      <v-btn variant="outlined" color="error">SUBSCRIBE</v-btn> -->
       <v-btn variant="outlined" @click="$router.push('/cart')" color="primary"
         >장바구니</v-btn
       >
@@ -133,7 +133,13 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn @click="menu = false; router.push('/mypage')">마이페이지</v-btn>
+              <v-btn
+                @click="
+                  menu = false;
+                  router.push('/mypage');
+                "
+                >마이페이지</v-btn
+              >
               <v-spacer></v-spacer>
               <v-btn
                 @click="

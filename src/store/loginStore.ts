@@ -27,7 +27,7 @@ export const useLoginStore = defineStore("login", () => {
   ): Promise<boolean | undefined> => {
     try {
       const response = await api.securePost(
-        `${import.meta.env.VITE_API_BASE_URL}/login/jwt`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/login/jwt`,
         { username, password }
       );
 
@@ -84,7 +84,7 @@ export const useLoginStore = defineStore("login", () => {
       isLogin.value = false;
 
       // 4. 서버에 로그아웃 알림 (HTTP Only 쿠키(refreshToken) 삭제를 위해)
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/logout`);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/logout`);
 
       // 5. 로그인 페이지로 리다이렉트
       router.push("/login");
