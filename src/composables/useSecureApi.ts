@@ -26,13 +26,9 @@ export const useSecureApi = () => {
     isLoading.value = true;
     error.value = null;
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/auth/csrf`,
-        null,
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/auth/csrf`, {
+        withCredentials: true,
+      });
       await new Promise((resolve) => setTimeout(resolve, 100));
       console.log("api/auth/csrf발동");
       // 쿠키에서 다시 토큰 추출
