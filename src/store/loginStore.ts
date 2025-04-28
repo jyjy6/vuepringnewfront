@@ -18,6 +18,7 @@ export const useLoginStore = defineStore("login", () => {
     if (storedUser) {
       user.value = JSON.parse(storedUser);
       isLogin.value = true; // 로그인 상태 유지
+      console.log("로그인됨")
     }
   };
 

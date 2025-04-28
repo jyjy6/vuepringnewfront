@@ -46,3 +46,6 @@ Thumbs.db
 *.pem
 *.key
 *.crt
+.env.production
+.env.*
+.env

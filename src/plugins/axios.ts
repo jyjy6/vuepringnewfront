@@ -7,6 +7,7 @@ const withCredentials = true;
 // 📌 인터셉터 등록 여부 체크
 
 const accessToken = localStorage.getItem("accessToken");
+const loginCheck = localStorage.getItem("user");
 
 // 액세스토큰 갱신 함수
 const refreshAccessToken = async () => {
@@ -35,14 +36,14 @@ const refreshAccessToken = async () => {
         const loginStore = useLoginStore();
         loginStore.logout();
         window.location.href = "/login";
+        return Promise.reject(error);
       }
-      throw new Error("Failed to refresh access token");
     }
   }
 };
 
 // 회원일경우에만 인터셉터 발동
-if (accessToken) {
+if (loginCheck) {
   axios.interceptors.request.use(
     async (config) => {
       console.log("Axios Request Interceptor - Start");
