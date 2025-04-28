@@ -106,6 +106,7 @@ import axios from "axios";
 import { computed, onMounted, ref } from "vue";
 import { StoreCart } from "../types/ShopTypes";
 import { useSecureApi } from "../composables/useSecureApi";
+import router from "../router";
 
 const cartItems = ref<StoreCart[]>();
 
@@ -191,8 +192,10 @@ const submitOrder = async () => {
       `${import.meta.env.VITE_API_BASE_URL}/api/orders`,
       orderData
     );
+    alert("주문이 완료되었습니다.");
     console.log(response);
     localStorage.removeItem("sendingForm");
+    router.push("/");
   } catch (error) {
     console.error("Purchase error:", error);
   }
