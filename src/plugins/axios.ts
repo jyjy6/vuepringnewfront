@@ -28,26 +28,35 @@ const refreshAccessToken = async () => {
 
     return accessToken;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error refreshing access token:", error);
-      // 리프레시 토큰 만료 또는 기타 이유로 401 발생 시 로그아웃 처리
-      if (error.response && error.response.status === 401) {
-        alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
-        const loginStore = useLoginStore();
-        loginStore.logout();
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
-    }
+    console.log(error);
   }
 };
+// 토큰 갱신 상태 관리
+let isRefreshing = false;
+let failedRequests = [];
 
 // 회원일경우에만 인터셉터 발동
 if (loginCheck) {
   axios.interceptors.request.use(
     async (config) => {
+      const ignoreInterceptor = ["/api/logout"];
+      if (ignoreInterceptor.some((url) => config.url?.includes(url))) {
+        return config;
+      }
+
+      if (!accessToken) {
+        // 토큰이 없으면 요청을 중단하고 로그아웃 처리
+        if (!isRefreshing) {
+          isRefreshing = true;
+          const loginStore = useLoginStore();
+          loginStore.logout();
+          alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+          window.location.href = "/login";
+          return Promise.reject(new Error("로그인하셈"));
+        }
+      }
+
       console.log("Axios Request Interceptor - Start");
-      // 매 요청마다 로컬스토리지에서 최신 토큰을 가져옵니다
       const currentAccessToken = localStorage.getItem("accessToken");
       if (currentAccessToken) {
         config.headers["Authorization"] = `Bearer ${currentAccessToken}`;
@@ -56,7 +65,6 @@ if (loginCheck) {
         "Authorization Header Added:",
         config.headers["Authorization"]
       );
-      console.log("Axios Request Interceptor - End");
       return config;
     },
     (error) => {
@@ -68,43 +76,57 @@ if (loginCheck) {
   // 응답 인터셉터
   axios.interceptors.response.use(
     (response) => {
-      console.log("Axios Response Interceptor - Success");
       return response;
     },
     async (error) => {
-      console.log("Axios Response Interceptor - Error");
       const originalRequest = error.config;
 
-      // /api/auth/login, /refresh-token 요청이면 인터셉터 적용 안 함
-      if (originalRequest.url === "/api/login/jwt") {
-        console.log("Login request, skipping interceptor");
+      // 로그인 요청은 무시
+      if (originalRequest.url.includes("/api/login/jwt")) {
         return Promise.reject(error);
       }
 
-      // 401 Unauthorized 응답 처리 (토큰 만료 시)
+      // 토큰 갱신 요청에서 401 에러가 발생했다면 바로 로그아웃
       if (
-        error.response &&
-        error.response.status === 401 &&
-        !originalRequest._retry
+        originalRequest.url.includes("/api/refresh-token") &&
+        error.response?.status === 401
       ) {
-        console.log("401 Unauthorized, attempting token refresh");
-        originalRequest._retry = true; // 재시도 플래그 설정
+        if (!isRefreshing) {
+          isRefreshing = true;
+          const loginStore = useLoginStore();
+          loginStore.logout();
+          alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+          window.location.href = "/login";
+          return Promise.reject(error);
+        }
+      }
 
-        try {
-          // 새로운 액세스 토큰 발급
-          console.log("액세스토큰 발급");
-          const newAccessToken = await refreshAccessToken();
-          console.log("New access token acquired:", newAccessToken);
+      // 401 Unauthorized 응답 처리 (토큰 만료 시)
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
 
-          // 원래 요청에 새로운 액세스 토큰 추가
-          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        // 토큰 갱신 중이 아닐 때만 갱신 시도
+        if (!isRefreshing) {
+          isRefreshing = true;
 
-          console.log("액세스토큰 발급완료");
-          // 원래 요청 재시도
-          return axios(originalRequest);
-        } catch (refreshError) {
-          console.error("Failed to refresh access token:", refreshError);
-          return Promise.reject(refreshError);
+          try {
+            const newAccessToken = await refreshAccessToken();
+
+            // 갱신 성공 - 대기 중인 요청들 처리
+            originalRequest.headers[
+              "Authorization"
+            ] = `Bearer ${newAccessToken}`;
+            isRefreshing = false;
+            return axios(originalRequest);
+          } catch (refreshError) {
+            isRefreshing = false;
+            return Promise.reject(refreshError);
+          }
+        } else {
+          // 이미 갱신 중이면 원래 요청을 큐에 추가
+          return new Promise((resolve, reject) => {
+            failedRequests.push({ resolve, reject });
+          });
         }
       }
 
@@ -118,7 +140,6 @@ axios.defaults.withCredentials = withCredentials;
 
 export default {
   install: (app: any) => {
-    // 필요하다면 app에 axios 인스턴스를 주입할 수 있습니다.
     app.config.globalProperties.$axios = axios;
   },
 };

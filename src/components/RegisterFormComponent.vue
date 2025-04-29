@@ -347,7 +347,7 @@ const submitForm = async () => {
       console.log("풋요청발동");
       console.log(form.value);
       const response = await api.securePut(
-        "http://localhost:8080/api/members/modify",
+        `${import.meta.env.VITE_API_BASE_URL}/api/members/modify`,
         form.value
       );
       localStorage.setItem("user", JSON.stringify(response.data));

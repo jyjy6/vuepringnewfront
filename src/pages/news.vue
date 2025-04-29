@@ -125,19 +125,21 @@ onMounted(() => {
   });
 });
 
-let newsDataCount = ref(3);
+let newsDataCount = ref(3); //초기 뉴스숫자
 const newsData = computed(() => newsDataStore.newsData);
 const limitedNewsData = computed((): News[] =>
+  //스토어에서 받아온 뉴스 데이터 숫자를 3개로 한정
   newsData.value.slice(0, newsDataCount.value)
 );
 
-// newsDataCount.
 function moreNews() {
+  //눈에 보이는 뉴스 데이터를 2개 더 증가
   newsDataCount.value += 2;
   nextTick(() => {
     findFirstImage();
   });
 }
+
 const activeIndex = ref(-1); // 현재 활성화된 아코디언 항목의 인덱스, 기본값은 -1로 설정
 
 const toggle = (index: number): void => {
